@@ -1,0 +1,55 @@
+@use "./partials/index" as *;
+
+.links {
+  &-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+  &__link {
+  }
+  &__btn-sign-out {
+    margin-top: 0;
+  }
+}
+
+.website__title {
+  color: $text-dark-color;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 2rem;
+  // margin: $margin-top $margin-sides;
+  // padding: $margin-top $margin-sides;
+
+  &-right {
+    display: flex;
+    gap: 1rem;
+    &__img {
+      width: 125px;
+      height: 43.45px;
+    }
+  }
+}
+
+.socials-container {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  &--icon {
+    height: 24.75px;
+    width: 24.75px;
+    color: $text-dark-color;
+    &:visited {
+      color: $text-dark-color;
+    }
+  }
+}
+
+.everything {
+  margin: $margin-top $margin-sides;
+}

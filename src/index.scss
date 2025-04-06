@@ -1,0 +1,1298 @@
+@use "styles/partials/index" as *;
+@import url("https://fonts.googleapis.com/css2?family=Nunito&display=swap");
+@import "utilities.css";
+/* ACTIVE */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "DM Sans";
+}
+
+html {
+  font-size: 1rem;
+  background-color: #969696;
+}
+
+body {
+  min-height: 100vh;
+  background-color: $background-light-color;
+}
+
+.App-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 80%;
+}
+
+ul {
+  list-style: none;
+}
+
+h1 {
+  font-size: 2.2rem;
+}
+
+.text {
+  &--bold {
+    font-weight: bold;
+  }
+  &--light {
+    color: $text-light-color;
+  }
+}
+// helper
+.mb-p5 {
+  margin-bottom: 0.5rem;
+}
+.mb-1 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-1p5 {
+  margin-bottom: 1.5rem;
+}
+.mb-2 {
+  margin-bottom: 2rem;
+}
+.mb-2p5 {
+  margin-bottom: 2.5rem;
+}
+.mb-3 {
+  margin-bottom: 3rem;
+}
+
+.mb-4 {
+  margin-bottom: 4rem;
+}
+
+.mb-5 {
+  margin-bottom: 5rem;
+}
+.mt-p5 {
+  margin-bottom: 0.5rem;
+}
+.mt-1 {
+  margin-top: 0.5rem;
+}
+
+.mt-1p5 {
+  margin-top: 1.5rem;
+}
+.mt-2 {
+  margin-top: 2rem;
+}
+.mt-2p5 {
+  margin-top: 2.5rem;
+}
+.mt-3 {
+  margin-top: 3rem;
+}
+
+.mt-4 {
+  margin-top: 4rem;
+}
+
+.mt-5 {
+  margin-top: 5rem;
+}
+.header-dark {
+  color: var(--header-dark-color);
+}
+
+section {
+  width: 100%;
+  max-width: var(--max-width);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: var(--background-light-color);
+}
+
+button {
+  padding: 0.5rem 1.5rem; /* Balanced padding for a modern look */
+  font-size: 20px;
+  color: #D45742; /* Better contrast on gradient background */
+  border: none;
+  border-radius: 8px; /* Smooth rounded edges */
+  background: linear-gradient(135deg, #E2A852, #D45742); /* CoLab gradient */
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #F0B75E, #E0674E); /* Brighter on hover */
+  transform: scale(1.05); /* Slight pop effect */
+  color: white
+}
+
+button:active {
+  transform: scale(0.95); /* Press-down effect */
+}
+.line {
+  display: inline-block;
+}
+
+select {
+  font-size: 1.05rem;
+  color: #D45742;
+}
+
+.note__italic {
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.icon {
+  &-highlight {
+    color: $warning-color;
+  }
+  &-copy {
+    color: #D45742;
+  }
+  &-left {
+    padding-right: 0.625rem;
+  }
+  &-right {
+    padding-left: 0.625rem;
+  }
+  &-large {
+    font-size: 2rem;
+  }
+  &-medium {
+    font-size: 1.5rem;
+  }
+  &-small {
+    font-size: 1rem;
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.update-profile-options {
+  display: flex;
+  flex-wrap: row;
+  justify-content: left;
+  gap: 20px;
+}
+
+.project-task {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+}
+
+.project-task-upload-btn {
+  margin-top: 0;
+  width: 110px;
+  border: none;
+  border-radius: 15px;
+  background-color: var(--primary-color);
+}
+
+/* Modal */
+.project-modal {
+  height: 100vh;
+}
+
+/* Helper Classes */
+
+.btn-holder {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: row;
+  gap: 100px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-holder-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.reset-margin-top {
+  margin-top: 0;
+}
+
+.btn-small {
+  width: 158px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn--payment {
+  font-size: 0.75rem;
+}
+
+.btn-dark {
+  color: var(--text-light-color);
+  background-color: var(--background-dark-color);
+  border-radius: 25px;
+}
+
+.btn-light {
+  color: var(--text-dark-color);
+  background-color: var(--background-accessibility-grey);
+  border-radius: 25px;
+}
+
+.btn-close-project {
+  margin-top: 0;
+}
+
+.btn-page-five {
+  width: 200px;
+}
+
+.bold-text {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.div-center {
+  text-align: center;
+}
+
+.comment-list {
+  font-size: 0.75rem;
+  margin-left: 22px;
+}
+
+.comment-list__header {
+  margin-bottom: 1rem;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+/* Stripe Form */
+
+.FormGroup {
+  margin: 16px 0 0;
+  padding: 0;
+  border-style: none;
+  background-color: #7795f8;
+  will-change: opacity, transform;
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #829fff;
+  border-radius: 4px;
+}
+
+.FormRow {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-left: 15px;
+  border-top: 1px solid #819efc;
+}
+
+.StripeElement--webkit-autofill {
+  background: transparent !important;
+}
+
+.StripeElement {
+  width: 100%;
+  padding: 11px 15px 11px 0;
+}
+
+.stripe-btn {
+  display: block;
+  font-size: 16px;
+  width: 100%;
+  height: 40px;
+  margin: 16px 0;
+  background-color: #f6a4eb;
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #ffb9f6;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 100ms ease-in-out;
+  will-change: transform, background-color, box-shadow;
+  border: none;
+}
+
+// Used on all pages
+
+.colab-folder-logo {
+  width: 3.286rem;
+  height: 2.5555rem;
+}
+
+.colab-text-logo {
+  width: 242px;
+  height: 58px;
+}
+
+.text--underline {
+  text-decoration: underline;
+  color: $text-dark-grey;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  &-center {
+    align-items: center;
+    justify-content: center;
+  }
+  &--gap {
+    gap: 1rem;
+  }
+}
+
+// Update Profile, Create Project Modal
+.keywords-container {
+  border: none;
+  border-radius: 3px;
+  width: min(80vw, var(--max-width));
+  display: flex;
+  flex-flow: wrap;
+  justify-content: left;
+  gap: 5px 15px;
+  margin-bottom: 1rem;
+  &--guidelines {
+    margin-bottom: 0;
+  }
+}
+
+.keywords-item {
+  border: 1px solid $form-border-color;
+  background-color: var(--background-accessibility-color);
+  color: var(--text-dark-color);
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  border-radius: 20px;
+}
+
+.keywords-text {
+  font-size: 1rem;
+}
+
+.keywords-delete {
+  width: 20px;
+  color: $text-dark-grey;
+  background: $background-light-color;
+  font-weight: bolder;
+  border: 1px solid $form-border-color;
+  border-radius: 60%;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
+  margin-left: 0.2rem;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.hashtags-input {
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid $form-border-color;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+}
+.keywords-input {
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid $form-border-color;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+}
+.phrases-input {
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid $form-border-color;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+}
+.keywords-input {
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid $form-border-color;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+}
+.tags-input {
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid $form-border-color;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.hashtags-delete {
+  width: 20px;
+  color: $text-dark-grey;
+  background: $background-light-color;
+  font-weight: bolder;
+  border: 1px solid black;
+  border-radius: 60%;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
+  margin-left: 0.2rem;
+  font-size: 15px;
+  cursor: pointer;
+}
+.phrases-delete {
+  width: 20px;
+  color: $text-dark-grey;
+  background: $background-light-color;
+  font-weight: bolder;
+  border: 1px solid black;
+  border-radius: 60%;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
+  margin-left: 0.2rem;
+  font-size: 15px;
+  cursor: pointer;
+}
+.tags-delete {
+  width: 20px;
+  color: $text-dark-grey;
+  background: $background-light-color;
+  font-weight: bolder;
+  border: 1px solid black;
+  border-radius: 60%;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
+  margin-left: 0.2rem;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.div-align-left {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+}
+
+.label-row-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+
+  &--justify-left {
+    justify-content: left;
+  }
+  &--left {
+    justify-content: left;
+    gap: 5rem;
+  }
+
+  &--half {
+    width: 50%;
+  }
+  &--guidelines {
+    gap: 16rem;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    &--half {
+      width: 50%;
+    }
+
+    &--keywords {
+      width: 70%;
+    }
+
+    &--revisions {
+      width: 30%;
+    }
+
+    &--compensation {
+      width: 25%;
+    }
+  }
+}
+
+.label-col-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &--accept {
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &--preview {
+    width: 50%;
+  }
+
+  &--guidelines {
+    gap: 2rem;
+  }
+}
+
+.heading-large {
+  font-family: "SF Pro";
+  font-size: 48px;
+  margin-bottom: 0.5rem;
+}
+
+.heading {
+  font-family: "SF Pro";
+  margin-bottom: 0.5rem;
+
+  &--small {
+    font-size: 32px;
+  }
+
+  &--medium {
+    font-size: 40px;
+  }
+
+  &--large {
+    font-size: 48px;
+  }
+  &--largest {
+    font-size: 64px;
+  }
+}
+
+// Button Classes
+.btn {
+  &-skip {
+    background-color: transparent;
+    border: none;
+    text-decoration: underline;
+    color: $text-dark-grey;
+    min-width: 17rem;
+  }
+
+  &-accept {
+    background-color: $text-dark-color;
+    color: $text-light-color;
+    border: 1px solid $text-dark-color;
+    border-radius: 91px;
+    padding: 8px 48px;
+    width: 35%;
+    font-size: 1.25rem;
+    &--small {
+      width: 15%;
+    }
+    &--disabled {
+      background-color: $btn-grey-color;
+      border: none;
+    }
+  }
+  // project modal - contract accept button
+  &-negotiate {
+    background-color: $text-light-color;
+    color: $text-dark-color;
+    border: 1px solid $text-dark-color;
+    border-radius: 91px;
+    padding: 8px 48px;
+    width: 35%;
+    &--white {
+      background-color: $background-light-color;
+      color: $text-dark-color;
+    }
+
+    &--disabled {
+      color: $text-dark-grey;
+      border: 1px solid $btn-grey-color;
+    }
+  }
+
+  // project-modal-navbar
+  &-modal-navbar {
+    background: transparent;
+    border: none;
+    color: $text-dark-color;
+    font-weight: 400;
+    font-size: 1rem;
+    padding: 0 1rem 1rem;
+    width: 15%;
+    text-align: center;
+    &--highlight {
+      border-bottom: 1px solid $background-dark-color;
+      padding-bottom: 1rem;
+    }
+    &--greyed {
+      color: #6060604c;
+    }
+  }
+
+  // project modal page 4 (guidelines)
+  &-copy {
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+  }
+
+  &-dotted {
+    border: 1px dashed $form-border-color;
+    color: $text-dark-color;
+    border-radius: 91px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+    width: 15%;
+    font-size: 1rem;
+    background-color: $background-light-color;
+    &--medium {
+      width: 25%;
+    }
+    &--large {
+      width: 35%;
+    }
+    &--full {
+      width: 100%;
+    }
+    &--success {
+      background-color: var(--success-color);
+      color: var(--text-light-color);
+    }
+  }
+
+  &-cta {
+    width: 100%;
+    border-radius: 91px;
+    border: none;
+
+    margin-bottom: 1rem;
+    padding: 0.5rem 3rem;
+    font-size: $desktop-btn-regular;
+    background-color: $text-dark-color;
+    color: $text-light-color;
+    // min-width: 17rem;
+    max-width: 18rem;
+
+    &--medium {
+      width: 35%;
+    }
+
+    &--active {
+      background-color: $text-dark-color;
+      color: $text-light-color;
+      border: none;
+    }
+
+    &--inactive {
+      background-color: $btn-grey-color;
+      border: none;
+      color: $text-light-color;
+    }
+
+    &--skip {
+      border: none;
+      margin: 0;
+      padding: 0;
+      color: $text-dark-grey;
+    }
+
+    &--transparent {
+      padding: 0.5rem 3rem;
+      width: 100%;
+      height: 40px;
+      border: 1px solid $btn-grey-color;
+      border-radius: 91px;
+      background: transparent;
+      color: $btn-grey-color;
+    }
+
+    &--small {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      width: 200px;
+    }
+  }
+
+  &-blank {
+    border: none;
+    color: $text-dark-grey;
+  }
+
+  &-hide {
+    font-size: 1rem;
+    border: none;
+    padding: 0.4rem;
+    background-color: rgb(254, 252, 251);
+    &:hover {
+      cursor: pointer;
+    }
+
+    &--light {
+      color: $text-light-color;
+    }
+  }
+}
+.btn-container {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1rem;
+
+  &--col {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  &--right {
+    justify-content: right;
+  }
+
+  &--center {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  &--full {
+    width: 100%;
+  }
+  &--gap {
+    gap: 2rem;
+  }
+}
+
+.link {
+  &--white {
+    color: $text-light-color;
+    :visited {
+      color: $text-light-color;
+    }
+  }
+  &--dark {
+    color: $text-dark-color;
+    &:visited {
+      color: $text-dark-color;
+    }
+  }
+}
+
+.fs {
+  &-small {
+    font-size: 0.8rem;
+  }
+}
+
+.landing__img-right {
+  width: 600px;
+  height: 750px;
+  position: relative;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #FEB624, #D45742);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Prevents overflow of child elements */
+  z-index: 1; /* Ensure this is above the pseudo-element */
+}
+
+.landing__img-right img {
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.landing__img-right::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 30%;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  border: 4px solid transparent;
+  background: linear-gradient(45deg, #D45742, #FEB624) border-box;
+  animation: spin-border 4s linear infinite;
+  z-index: -1; /* Ensure the border is behind the image */
+}
+
+@keyframes spin-border {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.heading {
+  &--largest {
+    font-size: 4rem; // Adjust size as needed
+    font-weight: bold;
+    background: linear-gradient(135deg, #D45742, #FEB624);
+    -webkit-text-fill-color: transparent; // Makes the gradient visible
+    display: inline-block; // Ensures gradient applies correctly
+  }
+}
+.register-form__input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 3px solid transparent; // Default border
+  border-radius: 5px;
+  background-clip: padding-box;
+  transition: all 0.3s ease-in-out;
+  
+  // Gradient border effect
+  background-image: linear-gradient(white, white), 
+                    linear-gradient(to right, #D45742, #FEB624); // Orange to Yellow
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  &:focus {
+    outline: none;
+    border-color: transparent; // Hide normal border
+    background-image: linear-gradient(white, white), 
+                      linear-gradient(to right,  #D45742, #FEB624); // Stronger gradient on focus
+  }
+
+  &:hover {
+    box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.5);
+  }
+  
+}
+.register__btn-back {
+  background: none; // Removes background color
+  border: none; // Optional: Removes border if needed
+  color: #D45742; // Default text color
+  transition: color 0.3s ease-in-out;
+
+  &:hover {
+    color: #FEB624;
+    background: none;
+    border: none;  // Changes text color on hover
+  }
+
+  .icon-left {
+    color: #D45742; // Default icon color
+
+    &:hover {
+      color: #FEB624; // Icon color on hover
+    }
+  }
+}
+.heading--medium {
+  color: #D45742; // Default text color
+
+}
+.register__description{
+
+    color: #D45742; // Default text color
+     // Text color on hover
+  }
+
+.register__subheader {
+
+    color: #D45742; // Default text color
+    ; // Text color on hover
+  }
+
+  .login__header {
+
+    color: #D45742; // Default text color
+    ; // Text color on hover
+  }
+  .login__description  {
+
+    color: #D45742; // Default text color
+    ; // Text color on hover
+  }
+
+  .login-form__input{
+  width: 100%;
+  padding: 0.5rem;
+  border: 3px solid transparent; // Default border
+  border-radius: 5px;
+  background-clip: padding-box;
+  transition: all 0.3s ease-in-out;
+  
+  // Gradient border effect
+  background-image: linear-gradient(white, white), 
+                    linear-gradient(to right, #D45742, #FEB624); // Orange to Yellow
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  &:focus {
+    outline: none;
+    border-color: transparent; // Hide normal border
+    background-image: linear-gradient(white, white), 
+                      linear-gradient(to right,  #D45742, #FEB624); // Stronger gradient on focus
+  }
+
+  &:hover {
+    box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.5);
+  }
+  
+}
+
+    .login__img-right {
+      width: 600px;
+      height: 750px;
+      position: relative;
+      border-radius: 40px;
+      background: linear-gradient(135deg, #FEB624, #D45742);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden; /* Prevents overflow of child elements */
+      z-index: 1; /* Ensure this is above the pseudo-element */
+    }
+   .landing__des {
+
+    color: #D45742; }
+
+    .form__text {
+
+      color: #D45742; }
+
+    .form__inputt{
+      width: 100%;
+      padding: 0.5rem;
+      border: 3px solid transparent; // Default border
+      border-radius: 25px;
+      background-clip: padding-box;
+      transition: all 0.3s ease-in-out;
+      
+      // Gradient border effect
+      background-image: linear-gradient(white, white), 
+                        linear-gradient(to right, #D45742, #FEB624); // Orange to Yellow
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+    
+      &:focus {
+        outline: none;
+        border-color: transparent; // Hide normal border
+        background-image: linear-gradient(white, white), 
+                          linear-gradient(to right,  #D45742, #FEB624); // Stronger gradient on focus
+      }
+    
+      &:hover {
+        box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.5);
+      }
+      
+    }
+    .form__label{
+
+      color: #D45742; }
+
+      .btn-hide{  background: none;
+        
+      }
+
+    .Categories-input{
+        width: 100%;
+        padding: 0.5rem;
+        border: 3px solid transparent; // Default border
+        border-radius: 25px;
+        background-clip: padding-box;
+        transition: all 0.3s ease-in-out;
+        
+        // Gradient border effect
+        background-image: linear-gradient(white, white), 
+                          linear-gradient(to right, #D45742, #FEB624); // Orange to Yellow
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+      
+        &:focus {
+          outline: none;
+          border-color: transparent; // Hide normal border
+          background-image: linear-gradient(white, white), 
+                            linear-gradient(to right,  #D45742, #FEB624); // Stronger gradient on focus
+        }
+      
+        &:hover {
+          box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.5);
+        }}
+        .categories-input{
+          width: 100%;
+          padding: 0.5rem;
+          border: 3px solid transparent; // Default border
+          border-radius: 25px;
+          background-clip: padding-box;
+          transition: all 0.3s ease-in-out;
+          
+          // Gradient border effect
+          background-image: linear-gradient(white, white), 
+                            linear-gradient(to right, #D45742, #FEB624); // Orange to Yellow
+          background-origin: border-box;
+          background-clip: padding-box, border-box;
+        
+          &:focus {
+            outline: none;
+            border-color: transparent; // Hide normal border
+            background-image: linear-gradient(white, white), 
+                              linear-gradient(to right,  #D45742, #FEB624); // Stronger gradient on focus
+          }
+        
+          &:hover {
+            box-shadow: 0px 0px 10px rgba(255, 165, 0, 0.5);
+          }}
+
+          // Modern Font
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+// Modern Buttons
+button {
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+// Modern Card Design
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+
+
+
+
+.logo-container {
+  width: 300px;  // Adjust as needed
+  height: 300px; // Adjust as needed
+  padding: 20px; // Optional, adds space inside the container
+  font-size: 2rem; // If there's text inside, you can scale it as well
+}
+.logo-container img {
+  width: 100%;  // Makes the image fill the container
+  height: auto; // Maintains the aspect ratio
+}
+
+.dashboard-links__link {
+  padding: 0.5rem 1.5rem; /* Balanced padding for a modern look */
+  font-size: 30px;
+  color: #3d3d3d; /* Better contrast on gradient background */
+  border: none;
+  border-radius: 8px; /* Smooth rounded edges */
+  background: white; /* CoLab gradient */
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.dashboard-links__link :hover {
+  background: linear-gradient(135deg, #F0B75E, #E0674E); /* Brighter on hover */
+  transform: scale(1.05); /* Slight pop effect */
+  color: white
+}
+
+.dashboard-links__link :active {
+  transform: scale(0.95); /* Press-down effect */
+}
+.line {
+  display: inline-block;
+}
+.header-left__greeting {
+  font-size: 2rem;             // Adjust font size to your preference
+  font-weight: bold;           // Makes the text bold
+  color: #333;                 // Initial color (dark grey)
+  margin: 0;                   // Removes any default margin
+  padding: 10px 0;             // Adds vertical padding
+  text-align: left;            // Aligns the text to the left (if needed)
+  text-transform: capitalize;  // Capitalizes the first letter of each word
+  font-family: 'Arial', sans-serif; // Custom font (change as needed)
+
+  // Animation for color change
+  animation: colorChange 4s infinite alternate;  // Animation applied
+
+  // Optional: Add a hover effect for the greeting
+  &:hover {
+    color: #e65c40;            // Changes the text color on hover
+    cursor: pointer;          // Makes the cursor a pointer when hovering
+  }
+}
+
+// Keyframes to animate color transition between #F0B75E and #E0674E
+@keyframes colorChange {
+  0% {
+    color: #F0B75E;  // First color
+  }
+  100% {
+    color: #E0674E;  // Second color
+  }
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: flex-end; // Aligns the button to the right
+  padding: 10px 20px; // Adds spacing around the header
+}
+
+.form__btn-dotted {
+  background: none;  // Removes default button background
+  border: 2px dotted #E0E0E0; // Creates a subtle dotted border
+  padding: 10px 20px; // Adds padding for better size
+  border-radius: 50px; // Makes the button rounded
+  font-size: 1.1rem; // Increases font size for a more modern look
+  color: #333; // Sets the text color
+  cursor: pointer; // Changes the cursor on hover
+
+  display: flex; // Ensures the icon and text align properly
+  align-items: center; // Aligns text and icon vertically
+  
+  transition: all 0.3s ease; // Smooth transition for all interactions
+
+  // Icon styling
+  .icon-left {
+    margin-right: 8px; // Adds space between the icon and text
+    font-size: 1.4rem; // Increases the icon size slightly
+  }
+
+  &:hover {
+    background-color: #F0B75E; // Changes background on hover
+    border-color: #E0674E; // Changes border color on hover
+    color: white; // Changes text color to white
+  }
+
+  &:focus {
+    outline: none; // Removes the outline on focus for a cleaner look
+    border-color: #E0674E; // Updates border color on focus
+  }
+}
+
+
+.project-container {
+  display: grid;               // Use grid layout for responsive design
+  gap: 20px;                   // Adds space between project cards
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // Creates responsive grid
+
+  .dashboard__btn {
+    display: flex;              // Flexbox to align image and text
+    flex-direction: column;     // Stack image and text vertically
+    background: #fff;           // White background for the button
+    border: 1px solid #ddd;     // Light border for the button
+    border-radius: 8px;         // Rounded corners
+    overflow: hidden;           // Ensures no content overflows
+    transition: all 0.3s ease;  // Smooth transition for hover effects
+    cursor: pointer;           // Pointer cursor on hover
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  // Subtle shadow for depth
+
+    &:hover {
+      transform: translateY(-5px); // Lifts the button on hover for a modern effect
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  // Slightly stronger shadow on hover
+      border-color: #E0674E;      // Changes border color on hover
+    }
+
+    .img-container {
+      position: relative;         // Positioning for the text inside the image container
+      overflow: hidden;           // Prevents text from overflowing the container
+
+      .project-container__img {
+        width: 100%;              // Makes the image fill the container
+        height: 200px;            // Set a fixed height for the image
+        object-fit: cover;        // Ensures the image is cropped nicely
+        border-bottom: 1px solid #ddd; // Divider between image and text
+      }
+
+      .img-container__text {
+        position: absolute;       // Position text inside the image
+        bottom: 10px;             // Position it at the bottom
+        left: 10px;               // Add space from the left
+        background-color: rgba(0, 0, 0, 0.5); // Semi-transparent background
+        color: #fff;              // White text
+        padding: 5px 10px;        // Padding for the text
+        border-radius: 4px;       // Rounded corners for the text
+        font-size: 0.9rem;         // Slightly smaller text
+      }
+    }
+
+    .project-container__text-container {
+      padding: 10px;             // Padding inside the text container
+
+      .project-container__text {
+        color: #333;             // Default text color
+        margin: 5px 0;           // Margin between text elements
+      }
+
+      .project-container__text--company {
+        font-weight: bold;       // Bold company name
+        font-size: 1.1rem;       // Larger font size
+        color: #333;             // Dark color for company name
+      }
+
+      .project-container__text--title {
+        font-size: 1rem;         // Default title size
+        color: #555;             // Lighter text color for the title
+        font-weight: normal;     // Keep title weight normal
+        overflow: hidden;        // Prevent overflow if text is too long
+        text-overflow: ellipsis; // Add ellipsis for long titles
+        white-space: nowrap;     // Prevent wrapping
+      }
+
+      .project-container__text--date {
+        font-size: 0.9rem;       // Smaller date font size
+        color: #888;             // Lighter color for the date
+      }
+
+      .project-container__text--status {
+        font-size: 0.9rem;       // Smaller font size for status
+        color: #888;             // Lighter color for status
+        margin-top: 10px;         // Adds space above the status
+        font-style: italic;      // Makes status text italic
+
+        // Dynamic colors based on status
+        &.no-influencer {
+          color: #f44336;       // Red for "No influencer assigned"
+        }
+        &.contract-sent {
+          color: #2196F3;       // Blue for "Contract sent"
+        }
+        &.in-progress {
+          color: #FF9800;       // Orange for "In progress"
+        }
+        &.waiting-review {
+          color: #9C27B0;       // Purple for "Waiting for review"
+        }
+        &.ready-to-publish {
+          color: #4CAF50;       // Green for "Ready to publish"
+        }
+      }
+    }
+  }
+}
+

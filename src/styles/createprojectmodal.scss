@@ -1,0 +1,306 @@
+@use "partials/index" as *;
+
+.create-project {
+  &__close-btn {
+    width: 70%;
+    border: 1px solid black;
+    border-radius: 30px;
+  }
+
+  &__success-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  &-modal {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+  }
+}
+
+.create-project-close-project-btn {
+  width: 100px;
+}
+
+.create-project-btn:hover {
+  cursor: pointer;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 100px 0 50px;
+  font-size: 0.8rem;
+  width: 70vw;
+
+  &--small {
+    width: 30vw;
+  }
+
+  &--no-padding {
+    padding: 0;
+  }
+  &__empty-space {
+    height: 300px;
+  }
+
+  &__btn {
+    &-next {
+      background-color: $btn-grey-color;
+      color: $btn-light-text-color;
+      border: none;
+      border-radius: 91px;
+      padding: 8px 48px;
+      width: 35%;
+      &--white {
+        background-color: $background-light-color;
+        color: $text-dark-color;
+      }
+    }
+    &-dotted {
+      border: 1px dashed $form-border-color;
+      color: $text-dark-color;
+      border-radius: 91px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+      width: 15%;
+      font-size: 1rem;
+      background-color: $background-light-color;
+      &--medium {
+        width: 25%;
+      }
+      &--large {
+        width: 35%;
+      }
+      &--success {
+        background-color: var(--success-color);
+        color: var(--text-light-color);
+      }
+    }
+  }
+
+  &-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex-grow: 1;
+    padding-bottom: 1rem;
+    &--compact {
+      display: block;
+    }
+  }
+
+  &__checkbox {
+    margin-right: 0.5rem;
+  }
+
+  &__input {
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid $form-border-color;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+
+    &--checkbox {
+      color: grey;
+    }
+
+    &--small {
+      width: 15%;
+    }
+
+    &--medium {
+      width: 25%;
+    }
+
+    &--full {
+      width: 100%;
+    }
+
+    &--textarea {
+      resize: none;
+    }
+    &--file {
+      width: 300px;
+      text-align: center;
+      margin: 0.3rem 6rem;
+      &::file-selector-button {
+        border-radius: 5px;
+        font-family: "DM Sans";
+        background: $background-light-color;
+        color: $text-dark-color;
+        width: 200px;
+        display: block;
+      }
+    }
+
+    &--invalid {
+      font-size: 1rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid red;
+    }
+    &--password {
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  &__text {
+    font-size: 1rem;
+    &--left {
+      text-align: left;
+    }
+    &--bold {
+      font-weight: 600;
+    }
+    &--description {
+      font-size: 20px;
+    }
+    &--header {
+      font-family: "SF Pro";
+      font-size: 48px;
+      margin-bottom: 0.5rem;
+    }
+
+    &--subheader {
+      font-size: 22px;
+      margin-bottom: 0.5rem;
+      &-large {
+        font-size: 36px;
+      }
+    }
+    &--center {
+      text-align: center;
+    }
+    &--note {
+      color: $text-dark-grey;
+    }
+    &--success {
+      color: $success-color;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__profile-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+  }
+  &__media-kit {
+    &--link {
+      text-decoration: underline;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__instructions {
+    font-size: 14px;
+    color: $text-dark-grey;
+    margin-bottom: 1rem;
+
+    &--large {
+      font-size: 22px;
+    }
+    &--center {
+      text-align: center;
+    }
+    &--offscreen {
+      position: absolute;
+      left: -9999px;
+    }
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: #6c6c6c;
+    margin-bottom: 0.1rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    line-height: 1.5rem;
+    &--checkbox {
+      color: $text-dark-color;
+      font-size: 1rem;
+    }
+  }
+}
+
+.preview {
+  &__header {
+    margin-bottom: 1rem;
+  }
+
+  &-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  &-left {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  &-right {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  &-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    &--left {
+      justify-content: left;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+
+  &-col {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  &-table {
+    width: 100%;
+    border: 1px solid $form-border-color;
+    border-radius: 10px;
+    &__tbody {
+      width: 100%;
+    }
+    // row
+    &__tr {
+      width: 100%;
+    }
+    // header
+    &__th {
+      text-align: left;
+      color: $text-dark-grey;
+      font-size: 0.75rem;
+      font-weight: 400;
+      width: 35%;
+    }
+    // data
+    &__td {
+      color: $text-dark-color;
+      font-size: 1rem;
+      width: 100%;
+      &--contract {
+        height: 40px;
+        overflow: hidden;
+      }
+    }
+  }
+}
