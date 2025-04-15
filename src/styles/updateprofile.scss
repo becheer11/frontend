@@ -6,7 +6,58 @@
   justify-content: space-between;
   gap: 10rem;
   margin-top: 5rem;
-
+  .update-profile-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .update-profile-container h2 {
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+  
+  .form-group input[type="file"] {
+    padding: 0;
+  }
+  
+  .image-preview {
+    margin-top: 10px;
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  
   &__container-left {
     display: flex;
     flex-direction: column;

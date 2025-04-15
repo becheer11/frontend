@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import {
-  faUser,
-  faClock,
-  faPlus,
-  faSquareMinus,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
-import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useAuth from "../hooks/useAuth";
 import axios from "../api/axios";
 import AuthContext from "../context/AuthProvider";
-import greyCircle from "../assets/greycircle.jpg";
 import "../styles/createprojectmodal.scss";
 import "../styles/dashboard.scss";
 
@@ -37,7 +31,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
   const [targetPlatform, setTargetPlatform] = useState("Instagram");
   const [reviewDeadline, setReviewDeadline] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [attachment, setAttachment] = useState("");
+  const [attachment, setAttachment] = useState(null);
 
   const handleKeyDown = (e) => {
     if (e.key !== "Enter") return;
@@ -67,22 +61,25 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      title,
-      description,
-      categories,
-      phrases,
-      tags,
-      budget: Number(budget),
-      targetPlatform,
-      reviewDeadline,
-      deadline,
-      attachment,
-    };
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("budget", Number(budget));
+    formData.append("targetPlatform", targetPlatform);
+    formData.append("reviewDeadline", reviewDeadline);
+    formData.append("deadline", deadline);
+    formData.append("attachment", attachment);
+
+    categories.forEach((cat) => formData.append("categories[]", cat));
+    phrases.forEach((phrase) => formData.append("phrases[]", phrase));
+    tags.forEach((tag) => formData.append("tags[]", tag));
 
     try {
-      const response = await axios.post("/api/brief", payload, {
-        headers: { "Content-Type": "application/json" },
+      const response = await axios.post("/api/brief", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         withCredentials: true,
       });
 
@@ -106,11 +103,13 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
             <FontAwesomeIcon icon={faX} className="icon-left" />
           </button>
         </div>
-        <form className="form" onSubmit={handleSubmit}>
+        <form className="form" onSubmit={handleSubmit} encType="multipart/form-data">
           <h2 className="form__text form__text--header">Create a Brief</h2>
 
           <div className="form-page">
             <h4 className="form__text form__text--subheader">Overview</h4>
+
+            {/* Brief Title */}
             <div className="label-row-container__col">
               <label className="form__label">Brief Title</label>
               <input
@@ -123,6 +122,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               />
             </div>
 
+            {/* Description */}
             <div className="label-row-container__col">
               <label className="form__label">Description</label>
               <textarea
@@ -135,6 +135,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               />
             </div>
 
+            {/* Categories */}
             <div className="label-row-container__col">
               <label className="form__label">Categories</label>
               <input
@@ -147,17 +148,13 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
                 {categories.map((cat, i) => (
                   <div className="keywords-item" key={i}>
                     <span className="keywords-text">{cat}</span>
-                    <span
-                      onClick={(e) => removeItem(e, i, "categories")}
-                      className="keywords-delete"
-                    >
-                      &times;
-                    </span>
+                    <span onClick={(e) => removeItem(e, i, "categories")} className="keywords-delete">&times;</span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Phrases */}
             <div className="label-row-container__col">
               <label className="form__label">Phrases</label>
               <input
@@ -170,17 +167,13 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
                 {phrases.map((phrase, i) => (
                   <div className="keywords-item" key={i}>
                     <span className="keywords-text">{phrase}</span>
-                    <span
-                      onClick={(e) => removeItem(e, i, "phrases")}
-                      className="phrases-delete"
-                    >
-                      &times;
-                    </span>
+                    <span onClick={(e) => removeItem(e, i, "phrases")} className="phrases-delete">&times;</span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Tags */}
             <div className="label-row-container__col">
               <label className="form__label">Tags</label>
               <input
@@ -193,17 +186,13 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
                 {tags.map((tag, i) => (
                   <div className="keywords-item" key={i}>
                     <span className="keywords-text">{tag}</span>
-                    <span
-                      onClick={(e) => removeItem(e, i, "tags")}
-                      className="tags-delete"
-                    >
-                      &times;
-                    </span>
+                    <span onClick={(e) => removeItem(e, i, "tags")} className="tags-delete">&times;</span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Budget */}
             <div className="label-row-container__col">
               <label className="form__label">Budget (CAD)</label>
               <input
@@ -215,6 +204,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               />
             </div>
 
+            {/* Target Platform */}
             <div className="label-row-container__col">
               <label className="form__label">Target Platform</label>
               <select
@@ -227,6 +217,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               </select>
             </div>
 
+            {/* Review Deadline */}
             <div className="label-row-container__col">
               <label className="form__label">Review Deadline</label>
               <input
@@ -238,6 +229,7 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               />
             </div>
 
+            {/* Final Deadline */}
             <div className="label-row-container__col">
               <label className="form__label">Final Deadline</label>
               <input
@@ -249,13 +241,15 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
               />
             </div>
 
+            {/* Attachment */}
             <div className="label-row-container__col">
-              <label className="form__label">Attachment (URL)</label>
+              <label className="form__label">Attachment (Image/Video)</label>
               <input
-                type="text"
-                value={attachment}
-                onChange={(e) => setAttachment(e.target.value)}
+                type="file"
+                accept="image/*,video/*"
                 className="form__input"
+                onChange={(e) => setAttachment(e.target.files[0])}
+                required
               />
             </div>
 

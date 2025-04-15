@@ -4,9 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInstagram, faTiktok } from "@fortawesome/free-brands-svg-icons";
 import projectCard from "../assets/project-card.png";
 import moment from "moment";
-
 import "../styles/chippycheckbox.scss";
-import ProjectModal from "./ProjectModal"; // Importing ProjectModal component
+import ProjectModal from "./ProjectModal";
 
 const NewCollabs = () => {
   const [briefs, setBriefs] = useState([]);
@@ -19,9 +18,7 @@ const NewCollabs = () => {
   const getAllBriefs = async () => {
     try {
       const response = await axios.get("/api/briefs", {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
       setBriefs(response.data.briefs || []);
@@ -108,7 +105,7 @@ const NewCollabs = () => {
                 />
                 <label htmlFor="tiktok" className="chippy__label">
                   <FontAwesomeIcon className="icon-left" icon={faTiktok} />
-                  Tik Tok
+                  TikTok
                 </label>
               </li>
             </ul>
@@ -124,11 +121,20 @@ const NewCollabs = () => {
             className="dashboard__btn"
           >
             <div className="img-container">
-              <img
-                src={projectCard}
-                alt="brief"
-                className="project-container__img"
-              />
+            {brief.advertiserId && brief.advertiserId.userId ? (
+  <img
+    src={brief.advertiserId.userId.profilePhoto.url || projectCard}
+    alt="advertiser"
+    className="project-container__img"
+  />
+) : (
+  <img
+    src={projectCard} // Default image if profilePhoto is not available
+    alt="project"
+    className="project-container__img"
+  />
+)}
+
               <p className="img-container__text">
                 {brief.validationStatus === "accepted" ? "✅ Validated" : "🕒 Pending"}
               </p>

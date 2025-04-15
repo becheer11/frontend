@@ -1202,15 +1202,15 @@ button {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // Creates responsive grid
 
   .dashboard__btn {
-    display: flex;              // Flexbox to align image and text
-    flex-direction: column;     // Stack image and text vertically
-    background: #fff;           // White background for the button
-    border: 1px solid #ddd;     // Light border for the button
-    border-radius: 8px;         // Rounded corners
-    overflow: hidden;           // Ensures no content overflows
-    transition: all 0.3s ease;  // Smooth transition for hover effects
-    cursor: pointer;           // Pointer cursor on hover
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  // Subtle shadow for depth
+    display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease; /* Smooth transition for hover effect */  // Subtle shadow for depth
 
     &:hover {
       transform: translateY(-5px); // Lifts the button on hover for a modern effect
@@ -1220,24 +1220,25 @@ button {
 
     .img-container {
       position: relative;         // Positioning for the text inside the image container
-      overflow: hidden;           // Prevents text from overflowing the container
+      overflow: hidden;          // Prevents text from overflowing the container
 
       .project-container__img {
         width: 100%;              // Makes the image fill the container
         height: 200px;            // Set a fixed height for the image
         object-fit: cover;        // Ensures the image is cropped nicely
         border-bottom: 1px solid #ddd; // Divider between image and text
+  /* Adds a transition effect for hover */
       }
 
       .img-container__text {
-        position: absolute;       // Position text inside the image
-        bottom: 10px;             // Position it at the bottom
-        left: 10px;               // Add space from the left
-        background-color: rgba(0, 0, 0, 0.5); // Semi-transparent background
-        color: #fff;              // White text
-        padding: 5px 10px;        // Padding for the text
-        border-radius: 4px;       // Rounded corners for the text
-        font-size: 0.9rem;         // Slightly smaller text
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for text */
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
       }
     }
 
@@ -1295,4 +1296,297 @@ button {
     }
   }
 }
+//pppppppppppppppppp
 
+
+
+.profile-avatar-info {
+  &__avatar {
+    width: 100px; /* Adjust width as needed */
+    height: 100px; /* Adjust height as needed */
+    border-radius: 50%; /* Makes the profile picture round */
+    object-fit: cover; /* Ensures the image is cropped nicely */
+    border: 2px solid #E0674E; /* Adds a white border around the image */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow effect */
+  }
+}
+.profile-avatar-info {
+  &__details {
+    .profile-avatar-info__username {
+      font-size: 0px; /* Adjust the size as needed */
+      font-weight: bold; /* Makes the text bold */
+      color: #333; /* Set the color (you can change it to your preferred color) */
+      letter-spacing: 0.5px; /* Optional: adds spacing between letters */
+      margin-top: 10px; /* Optional: Adds some space on top of the username */
+    }
+  }
+
+}
+.profile-avatar-info {
+  &__categories {
+    display: flex; /* Display the categories in a row */
+    gap: 10px; /* Adds space between each category */
+    align-items: center; /* Aligns the items vertically if needed */
+
+    .category {
+      font-size: 16px; /* Adjust the size of the text */
+      color:#ff9e01; /* Adjust the color of the text (matches the reddish color in the image) */
+    }
+
+    .category::before {
+      content: "•"; /* Adds the bullet point before each category */
+      margin-right: 5px; /* Adds space between the point and the category */
+      font-size: 18px; /* Adjust the size of the bullet point */
+    }
+  }
+}
+.profile-social-stats {
+  &__details {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    gap: 8px; /* Adds space between stats */
+  }
+
+  &__followers, &__posts {
+    display: flex;
+    align-items: baseline; /* Align the number and text on the same baseline */
+    gap: 4px; /* Space between the number and the text */
+  }
+
+  .profile-social-stats__followers span, 
+  .profile-social-stats__posts span {
+    font-size: 16px; /* Adjust font size */
+  }
+
+  .profile-social-stats__followers .number,
+  .profile-social-stats__posts .number {
+    font-weight: bold; /* Makes the number bold */
+    color: #000; /* Black color for the number */
+    font-size: 24px; /* Makes the number larger */
+  }
+
+  .profile-social-stats__followers .text,
+  .profile-social-stats__posts .text {
+    font-weight:lighter; /* Regular weight for the text */
+    color: #ff9e01; /* Orange color for the text */
+    font-size: 24px; /* Regular font size for text */
+  }
+}
+.profile-score {
+  display: flex;
+  align-items: baseline; /* Align number and text in a row */
+  gap: 5px; /* Adds space between elements */
+
+  .score-label {
+    font-weight: normal; /* Thin font for the 'score' text */
+    color: #ff9e01; /* Orange color for the 'score' label */
+    font-size: 24px; /* Smaller font size for the label */
+  }
+
+  .score-value {
+    display: flex; /* To align the number and '/100' properly */
+    align-items: baseline;
+    
+    .number {
+      font-weight: bold; /* Makes the number bold */
+      color: #000; /* Black color for the number */
+      font-size: 24px; /* Larger size for the number */
+    }
+
+    .slash {
+      font-weight: normal; /* Regular weight for the slash */
+      color: #ff9e01; /* Orange color for the slash */
+      font-size: 24px; /* Regular font size for the slash */
+      margin: 0 4px; /* Adds some space around the slash */
+    }
+
+    .max-score {
+      font-weight: normal; /* Regular weight for the max score */
+      color: #ff9e01; /* Orange color for '/100' */
+      font-size: 24px; /* Regular font size for '/100' */
+    }
+  }
+}
+.register__text {
+  &--subtle {
+    font-size: 16px; /* Adjust the font size as needed */
+    color: #333; /* Default color for subtle text */
+  }
+
+  &--subtle .text--underline {
+    color: #ff9e01; /* Orange color for the link */
+    text-decoration: underline; /* Adds an underline */
+  }
+}
+.dashboard-header-left {
+  &__greeting {
+    color: #ff9e01; /* Orange color */
+    font-size: 24px; /* Adjust font size as needed */
+    font-weight: bold; /* Make the text bold */
+  }
+}
+
+
+
+
+//////
+
+
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  position: relative;
+  gap: 20px; /* Space between left and right sections */
+
+  &--light {
+    background-color: #f4f4f4;
+  }
+
+  &-left {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Increased gap between header and profile section */
+  }
+
+  &__greeting {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .profile-stats-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 90px; /* Space between profile and social stats + score */
+  }
+
+  .profile-avatar-info {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Increased gap between avatar and text */
+  }
+
+  .profile-avatar-info__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+  }
+
+  .profile-avatar-info__details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-avatar-info__username {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .profile-avatar-info__categories {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .category {
+    font-size: 18px;
+    color: #ff9e01;
+  }
+
+  /* Fix to align images before follower numbers */
+  .profile-social-stats {
+    display: flex;
+    gap: 30px; /* Space between social stats */
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-top: 30px; /* Added margin between profile section and social stats */
+  }
+
+  .profile-social-stats__item {
+    display: flex;
+    flex-direction: row; /* Row direction for TikTok/Instagram icon and numbers */
+    align-items: center;
+  }
+
+  .profile-social-stats__item img {
+    width: 70px; /* Increased size of the images */
+    height: 70px; /* Increased size of the images */
+    margin-right: 8px; /* Space between icon and follower number */
+  }
+
+  .profile-social-stats__followers,
+  .profile-social-stats__posts {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .profile-social-stats__followers .number,
+  .profile-social-stats__posts .number {
+    font-weight: bold;
+  }
+
+  .profile-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    gap: 10px;
+  }
+
+  .profile-score .score-label {
+    font-size: 14px;
+    color: #777;
+  }
+
+  .profile-score .score-value {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .score-value .number {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  /* Update Profile Link - Positioned directly below the profile section */
+  .profile-update-link {
+    margin-top: 40px; /* Increased margin between profile section and update link */
+    .register__text {
+      font-size: 14px;
+      .text--underline {
+        text-decoration: underline;
+        color: #007bff;
+      }
+    }
+  }
+
+  .dashboard-header-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    .icon-medium {
+      font-size: 24px;
+      margin-left: 15px;
+    }
+
+    .dashboard-header-right__avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 15px;
+    }
+  }
+
+  .tiktok-icon,
+  .instagram-icon {
+    width: 40px; /* Increased icon size */
+    height: 40px; /* Increased icon size */
+  }
+}

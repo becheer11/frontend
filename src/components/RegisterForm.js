@@ -90,7 +90,7 @@ const RegisterForm = ({
       const payload = JSON.stringify({
         email: user, // Changed from 'user' to 'email' if your backend expects 'email'
         password: pwd,
-        company,
+        companyName:company ,
         username,
         firstName,
         lastName,
