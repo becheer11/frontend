@@ -278,7 +278,7 @@ const Dashboard = () => {
                   <img
                       src={   item.advertiserId?.userId.profilePhoto.url 
                       ||
-                        item.creatorId?.userId.profilePhoto.url ||
+                      item.briefId?.advertiserId?.userId?.profilePhoto?.url  ||
                         projectCard}
 
                     alt="project"
