@@ -19,6 +19,7 @@ import colabFolder from "../assets/colab-logo.png";
 import colabTextTransparent from "../assets/colab-text-transparent.png";
 import axios from "../api/axios";
 import MyBriefModel from "./MyBriefModel"; // Import MyBriefModel
+import MyCampaignModal from "./MyCampaignModal"; // Import MyCampaignModal
 
 const BUTTON_WRAPPER_STYLES = {
   position: "relative",
@@ -46,12 +47,10 @@ const Dashboard = () => {
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [showCreateBriefModal, setShowCreateBriefModal] = useState(false);
 
-  // Define fetchData here
+  // Fetch the data based on user role
   const fetchData = async () => {
     try {
-      const endpoint = auth.roles.includes("Influencer")
-        ? "/api/my-campaigns"
-        : "/api/mybriefs";
+      const endpoint = auth.roles.includes("Influencer") ? "/api/my-campaigns" : "/api/mybriefs";
       const res = await axios.get(endpoint, {
         withCredentials: true,
       });
@@ -82,15 +81,7 @@ const Dashboard = () => {
     setShowModal(true);
   };
 
-  // Show modal body scroll locking
   showModal ? disableBodyScroll(document) : enableBodyScroll(document);
-
-  // Handle the successful creation of a brief
-  const handleCreateBriefSuccess = (newBrief) => {
-    // Add the new brief directly to the items state
-    setItems((prevItems) => [newBrief, ...prevItems]);
-    setShowCreateBriefModal(false);
-  };
 
   return (
     <section className="dashboard">
@@ -262,18 +253,6 @@ const Dashboard = () => {
           </header>
         ) : null}
 
-        {auth.roles.includes("Brand") && !showNewCollabs && (
-          <div className="dashboard-header dashboard-header--justify-right">
-            <button
-              onClick={() => setShowCreateBriefModal(true)}
-              className="form__btn-dotted form__btn-dotted--medium"
-            >
-              <FontAwesomeIcon icon={faPlus} className="icon-left" />
-              Create a New Brief
-            </button>
-          </div>
-        )}
-
         {!showNewCollabs ? (
           <section className="project-container">
             <h2 className="dashboard-section-title">
@@ -284,12 +263,8 @@ const Dashboard = () => {
               <button key={item._id} onClick={() => expandItem(item)} className="dashboard__btn">
                 <div className="img-container">
                   <img
-                      src={   item.advertiserId?.userId.profilePhoto.url 
-                      ||
-                      item.briefId?.advertiserId?.userId?.profilePhoto?.url  ||
-                        projectCard}
-
-                    alt="project"
+                    src={item.advertiserId?.userId.profilePhoto.url || projectCard}
+                    alt="campaign"
                     className="project-container__img"
                   />
                   <p className="img-container__text">
@@ -298,27 +273,14 @@ const Dashboard = () => {
                 </div>
                 <div className="project-container__text-container">
                   <h4 className="project-container__text project-container__text--company">
-                    {item.advertiserId?.companyName ||
-                      item.creatorId?.userId?.username ||
-                      "Unknown"}
+                    {item.advertiserId?.companyName || item.creatorId?.userId?.username || "Unknown"}
                   </h4>
                   <h5 className="project-container__text project-container__text--title">
-                    {item.title?.length > 20 ? item.title.slice(0, 20) + "..." : item.title}
+                    {item.title?.length > 20 ? `${item.title.slice(0, 20)}...` : item.title}
                   </h5>
-                  <h7 className="project-container__text project-container__text--title">
-                    {item.description?.length > 20
-                      ? item.description.slice(0, 20) + "..."
-                      : item.description}
-                  </h7>
                   <h6 className="project-container__text project-container__text--date">
-                    Due Date:{" "}
-                    {item.deadline ? new Date(item.deadline).toLocaleDateString() : "N/A"}
+                    Due Date: {item.deadline ? new Date(item.deadline).toLocaleDateString() : "N/A"}
                   </h6>
-                  <div className="project-container__text project-container__text--status">
-                    {item.status && `📌 ${item.status}`}
-                    {item.budget && ` | 💰 $${item.budget}`}
-                    {item.paymentStatus && ` | 💳 ${item.paymentStatus}`}
-                  </div>
                 </div>
               </button>
             ))}
@@ -327,37 +289,25 @@ const Dashboard = () => {
           <NewCollabs />
         )}
 
-
-        <div style={BUTTON_WRAPPER_STYLES}>
-          {showModal && (
+        {showModal && (
+          auth.roles.includes("Influencer") ? (
+            <MyCampaignModal
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+              campaign={projectModal}
+              user={user}
+              refreshDashboard={fetchData}
+            />
+          ) : (
             <MyBriefModel
               isOpen={showModal}
               onClose={() => setShowModal(false)}
               brief={projectModal}
               role={auth.roles}
-              OVERLAY_STYLES={OVERLAY_STYLES}
               user={user}
-              refreshDashboard={fetchData} // Call fetchData here
+              refreshDashboard={fetchData}
             />
-          )}
-        </div>
-
-        {showCreateProjectModal && (
-          <CreateProjectModal
-            isOpen={showCreateProjectModal}
-            onClose={() => setShowCreateProjectModal(false)}
-            project={projectModal}
-            role={auth.roles}
-            brand={user?.firstName}
-            OVERLAY_STYLES={OVERLAY_STYLES}
-          />
-        )}
-
-        {showCreateBriefModal && (
-          <CreateBriefModal
-            isOpen={showCreateBriefModal}
-            onClose={() => setShowCreateBriefModal(false)}
-          />
+          )
         )}
       </div>
     </section>
@@ -365,4 +315,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

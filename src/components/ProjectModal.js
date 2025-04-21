@@ -31,12 +31,14 @@ const MODAL_STYLES = {
   zIndex: 1000,
 };
 
-const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user, refreshDashboard }) => {
+const ProjectModal = ({ isOpen,role, onClose, brief, OVERLAY_STYLES, refreshDashboard }) => {
   const [showAddComment, setShowAddComment] = useState(false);
   const [comment, setComment] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const { auth } = useAuth(AuthContext);
+  const [activeTab, setActiveTab] = useState('overview');
+
 
 
   useEffect(() => {
@@ -64,14 +66,16 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
       console.error("Error updating brief:", err);
     }
   };
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   if (!isOpen || !brief) return null;
 
   return ReactDOM.createPortal(
     <div style={OVERLAY_STYLES} className="modal-overlay">
-      <div style={MODAL_STYLES} className="project-modal-page__group">
+      <div style={MODAL_STYLES} className="project-modal">
         <div className="flex justify-between items-start mb-6">
-         
           <button onClick={onClose} className="text-xl text-gray-600 hover:text-black">
             <FontAwesomeIcon icon={faX} />
           </button>
@@ -79,14 +83,57 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
 
         <div className="text-gray-800">
           <h1 className="text-4xl font-bold mb-4">{brief.title}</h1>
-          <p className="text-lg mb-2"><strong>Description:</strong> {brief.description}</p>
-          <p className="text-sm mb-2"><strong>Platform:</strong> {brief.targetPlatform}</p>
-          <p className="text-sm mb-2"><strong>Tags:</strong> {brief.tags?.join(", ")}</p>
-          <p className="text-sm mb-2"><strong>Categories:</strong> {brief.categories?.join(", ")}</p>
-          <p className="text-sm mb-2"><strong>Budget:</strong> ${brief.budget}</p>
-          <p className="text-sm mb-6"><strong>Deadline:</strong> {new Date(brief.deadline).toLocaleDateString()}</p>
+          <div className="tabs mb-4">
+            <button 
+              className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
+              onClick={() => handleTabChange('overview')}
+            >
+              Overview
+            </button>
+            <button 
+              className={`tab ${activeTab === 'compensation' ? 'active' : ''}`}
+              onClick={() => handleTabChange('compensation')}
+            >
+              Compensation
+            </button>
+           
+            <button 
+              className={`tab ${activeTab === 'guidelines' ? 'active' : ''}`}
+              onClick={() => handleTabChange('guidelines')}
+            >
+              Guidelines
+            </button>
+          </div>
 
-          {brief.attachment?.url && (
+          {/* Overview Section */}
+          {activeTab === 'overview' && (
+            <div className="section-content">
+              <p><strong>Description:</strong> {brief.description}</p>
+              <p><strong>Platform:</strong> {brief.targetPlatform}</p>
+              <p><strong>Tags:</strong> {brief.tags?.join(", ")}</p>
+              <p><strong>Categories:</strong> {brief.categories?.join(", ")}</p>
+              <p><strong>Budget:</strong> ${brief.budget}</p>
+              <p><strong>Deadline:</strong> {new Date(brief.deadline).toLocaleDateString()}</p>
+            </div>
+          )}
+
+          {/* Compensation Section */}
+          {activeTab === 'compensation' && (
+            <div className="section-content">
+              <p><strong>Compensation Type:</strong> Payment</p>
+              <p><strong>Payment Method:</strong> Stripe</p>
+              <p><strong>Amount:</strong> ${brief.budget}</p>
+            </div>
+          )}
+
+          {/* Deliverables Section */}
+          
+
+          {/* Guidelines Section */}
+          {activeTab === 'guidelines' && (
+            <div className="section-content">
+              <p><strong>Required Phrases:</strong> {brief.phrases?.join(", ")}</p>
+              <p><strong>more :</strong>  {brief.attachment?.url && (
             <div className="mb-6">
               <p className="font-medium mb-2">Attachment:</p>
               {brief.attachment.resourceType === "image" ? (
@@ -95,12 +142,9 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                 <video controls src={brief.attachment.url} className="rounded-lg w-full max-h-80 object-contain shadow-md" />
               )}
             </div>
-          )}
-
-        
-
+          )}</p>
           <div className="mt-8 flex flex-wrap gap-4">
-            {["no influencer assigned"].includes(brief.status) && !showAddComment && (
+            { ["no influencer assigned"].includes(brief.status) && !showAddComment && (
               <>
                 <button onClick={() => setShowAddComment(true)} className="bg-yellow-400 hover:bg-yellow-500 text-white px-5 py-2 rounded-lg shadow">
                   <FontAwesomeIcon icon={faPencil} className="mr-2" /> Negotiate
@@ -110,44 +154,26 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                 </button>
               </>
             )}
-
-       {/* Button to trigger the creation of a new campaign
-       <button 
-  onClick={() => setShowCreateCampaign(true)}  // Sets the state to show the create campaign modal
-  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow"  // Tailwind CSS classes for styling the button
->
-  <FontAwesomeIcon icon={faPlus} className="mr-2" />  {/* Font Awesome icon for the plus symbol
-  Create Campaign
-</button> */ }
-
+            </div>
+            </div>
+          )}
+ 
+          <div className="mt-8 flex flex-wrap gap-4">
+            <button 
+              onClick={onClose} 
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg shadow"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => refreshDashboard?.()} 
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow"
+            >
+              Refresh Dashboard
+            </button>
           </div>
-
-          {showAddComment && (
-            <form onSubmit={(e) => handleSubmitReviewContract("modify", e)} className="mt-6">
-              <label htmlFor="comments" className="block text-sm font-medium mb-2">Request Changes</label>
-              <input
-                type="text"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-              />
-              <button type="submit" className="bg-purple-500 hover:bg-purple-600 text-white px-5 py-2 rounded-lg shadow">
-                <FontAwesomeIcon icon={faPencil} className="mr-2" /> Submit
-              </button>
-            </form>
-          )}
-
-          {showSuccess && (
-            <div className="mt-6 text-green-600 font-medium">✅ Brief has been {brief.validationStatus === "accepted" ? "accepted" : "rejected"} successfully.</div>
-          )}
+          
         </div>
-
-        <CreateCampaignModal
-          isOpen={showCreateCampaign}
-          onClose={() => setShowCreateCampaign(false)}
-          OVERLAY_STYLES={OVERLAY_STYLES}
-          brief={brief}
-        />
       </div>
     </div>,
     document.getElementById("portal")
