@@ -239,14 +239,18 @@
 }
 
 .project-modal-overlay {
-  position: "fixed";
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: (var(--transparent-dark-color));
+  background-color: var(--transparent-dark-color); /* Corrected background color syntax */
+  display: flex; /* Use flexbox to center the content */
+  justify-content: center; /* Align content horizontally in the center */
+  align-items: center; /* Align content vertically in the center */
   z-index: 1000;
 }
+
 
 .project-details-company {
   font-size: 1.15rem;

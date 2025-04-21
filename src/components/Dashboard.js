@@ -82,7 +82,15 @@ const Dashboard = () => {
     setShowModal(true);
   };
 
+  // Show modal body scroll locking
   showModal ? disableBodyScroll(document) : enableBodyScroll(document);
+
+  // Handle the successful creation of a brief
+  const handleCreateBriefSuccess = (newBrief) => {
+    // Add the new brief directly to the items state
+    setItems((prevItems) => [newBrief, ...prevItems]);
+    setShowCreateBriefModal(false);
+  };
 
   return (
     <section className="dashboard">

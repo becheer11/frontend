@@ -1,0 +1,344 @@
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import {
+  faUser,
+  faClock,
+  faPlus,
+  faSquareMinus,
+  faX,
+} from "@fortawesome/free-solid-svg-icons";
+import { faCalendar } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import useAuth from "../hooks/useAuth";
+import axios from "../api/axios";
+import AuthContext from "../context/AuthProvider";
+import greyCircle from "../assets/greycircle.jpg";
+import "../styles/createprojectmodal.scss";
+import "../styles/dashboard.scss";
+import CreateProjectSummary from "./CreateProjectSummary";
+
+const MODAL_STYLES = {
+  position: "fixed",
+  top: "50%",
+  right: "0%",
+  transform: "translate(0%, -50%)",
+  backgroundColor: "#fefcfb",
+  zIndex: 1000,
+};
+
+const CREATEPROJECT_URL = "/api/brief";
+const ADD_PROJECT_IMAGES_URL = "/api/addprojectimage";
+
+const CreateBriefModal = ({
+  isOpen,
+  onClose,
+  children,
+  brand,
+  OVERLAY_STYLES,
+}) => {
+  const { auth } = useAuth(AuthContext);
+
+  // Form Fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [influencerAssigned, setInfluencerAssigned] = useState("");
+  const [instagramDeliverable, setInstagramDeliverable] = useState("");
+  const [tiktokDeliverable, setTiktokDeliverable] = useState("");
+  const [youtubeDeliverable, setYoutubeDeliverable] = useState("");
+
+  const [reviewDeadline, setReviewDeadline] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [deadlineTime, setDeadlineTime] = useState("23:59");
+  const [numberOfRevisions, setNumberOfRevisions] = useState("1");
+const [socialExample, setSocialExample] = useState("");
+  const [uploadSuccessMsg, setUploadSuccessMsg] = useState("");
+  // Form Pages
+  const [showContractDetails, setShowContractDetails] = useState(true);
+  const [showDeliverables, setShowDeliverables] = useState(false);
+  const [showContractGuidelines, setShowContractGuidelines] = useState(false);
+  const [showContractPayment, setShowContractPayment] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Payment Page
+  const [showPaymentDetails, setShowPaymentDetails] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentPrice, setPaymentPrice] = useState("");
+  const [paymentProduct, setPaymentProduct] = useState("");
+
+  // Project Guidelines
+  const [categories, setCategories] = useState([]);
+  const [phrases, setPhrases] = useState([]);
+  const [linkInBio, setLinkInBio] = useState("");
+
+  // Handle category input
+  const handleCategoryKeyDown = (e) => {
+    if (e.key !== "Enter") return;
+    const value = e.target.value.trim();
+    if (value) {
+      setCategories([...categories, value]);
+    }
+    e.target.value = "";
+  };
+
+  // Handle phrases input
+  const handlePhrasesKeyDown = (e) => {
+    if (e.key !== "Enter") return;
+    const value = e.target.value.trim();
+    if (value) {
+      setPhrases([...phrases, value]);
+    }
+    e.target.value = "";
+  };
+
+  // Removing category or phrase
+  const removeItem = (item, setter, index) => {
+    setter(item.filter((_, i) => i !== index));
+  };
+
+  // Handle form page navigation (Next button)
+  const nextPage = () => {
+    if (showContractDetails) {
+      setShowContractDetails(false);
+      setShowDeliverables(true);
+    } else if (showDeliverables) {
+      setShowDeliverables(false);
+      setShowContractPayment(true);
+    } else if (showContractPayment) {
+      setShowContractPayment(false);
+      setShowContractGuidelines(true);
+    } else if (showContractGuidelines) {
+      setShowContractGuidelines(false);
+      setShowSummary(true);
+    }
+  };
+
+  // Create Project
+  const submitProject = async (e) => {
+    e.preventDefault();
+    const payload = {
+      title,
+      description,
+      influencerAssigned,
+      instagramDeliverable,
+      tiktokDeliverable,
+      youtubeDeliverable,
+      reviewDeadline,
+      deadline,
+      deadlineTime,
+      numberOfRevisions,
+      categories,
+      phrases,
+      status: "no influencer assigned",
+    };
+
+    try {
+      const response = await axios.post(CREATEPROJECT_URL, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      console.log("Project Created:", response.data);
+      setShowSuccess(true);
+      setShowSummary(false);
+    } catch (err) {
+      console.log("Error creating project:", err);
+    }
+  };
+
+  const [selectedFile, setSelectedFile] = useState();
+  const [isFilePicked, setIsFilePicked] = useState(false);
+  const [awsImage, setAwsImage] = useState("");
+  const [project, setProject] = useState("");
+
+  const uploadImgFileHandler = (e) => {
+    console.log("file was chosen", e.target.files[0]);
+    setSelectedFile(e.target.files[0]);
+    setIsFilePicked(true);
+  };
+
+  const handleAwsUpload = async (e, type) => {
+    e.preventDefault();
+    let amazonURL;
+    let file;
+    let contentType;
+    if (type === "image") {
+      file = selectedFile;
+      contentType = "multipart/form-data";
+    }
+    try {
+      const res = await axios.get("/api/s3");
+      amazonURL = res.data.url;
+      console.log("got the secure url from S3", amazonURL);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // post the image to S3
+    await fetch(amazonURL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      body: file,
+    });
+
+    if (type === "image") {
+      const imageURL = amazonURL.split("?")[0];
+      console.log(imageURL);
+      setAwsImage(imageURL);
+      updateProjectExamples(imageURL);
+    }
+  };
+
+  const updateProjectExamples = async (imageID, social) => {
+    console.log("Image ID", imageID);
+    console.log("Project ID", project._id);
+    try {
+      const payload = JSON.stringify({
+        projectID: project._id,
+        imageURL: imageID,
+        social: social,
+        type: "example",
+      });
+      const response = await axios.post(ADD_PROJECT_IMAGES_URL, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      setUploadSuccessMsg(`Example image for ${social} uploaded successfully!`);
+      setSocialExample("");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return ReactDOM.createPortal(
+    <div style={OVERLAY_STYLES} className="">
+      <div style={MODAL_STYLES} className="create-project-modal">
+        <div className="btn-container btn-container--right">
+          <button className="btn-hide" onClick={onClose} type="button">
+            <FontAwesomeIcon icon={faX} className="icon-left" />
+          </button>
+        </div>
+        <form className="form">
+          <h2 className="form__text form__text--header">
+            {!showSuccess ? "Create a Campaign" : "Success!"}
+          </h2>
+
+          {/* Contract Details */}
+          {showContractDetails && (
+            <div className="form-page">
+              <h4 className="form__text form__text--subheader">Overview</h4>
+              <div className="label-row-container__col">
+                <label htmlFor="title" className="form__label">
+                  Campaign Title
+                </label>
+                <input
+                  onChange={(e) => setTitle(e.target.value)}
+                  type="text"
+                  id="title"
+                  autoComplete="off"
+                  value={title}
+                  required
+                  placeholder="title"
+                  className="form__input"
+                />
+              </div>
+
+              <div className="label-row-container__col">
+                <label htmlFor="description" className="form__label">
+                  Campaign Description (200 Words Max)
+                </label>
+                <textarea
+                  onChange={(e) => setDescription(e.target.value)}
+                  type="text"
+                  id="description"
+                  autoComplete="off"
+                  value={description}
+                  required
+                  placeholder="description"
+                  className="form__input form__input--textarea"
+                  rows="6"
+                  cols="50"
+                />
+              </div>
+
+              <div className="btn-container btn-container--center mt-1p5">
+                <button
+                  onClick={nextPage}
+                  type="button"
+                  disabled={title && description ? false : true}
+                  className={title && description ? "btn-cta btn-cta--medium btn-cta--active" : "btn-cta btn-cta--medium btn-cta--inactive"}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Deliverables */}
+          {showDeliverables && (
+            <div className="form-page">
+              <h4 className="form__text form__text--subheader">Deliverables</h4>
+
+              <div className="label-row-container__col">
+                <label htmlFor="platform" className="form__label">
+                  Platform
+                </label>
+                <select
+                  value={instagramDeliverable}
+                  onChange={(e) => setInstagramDeliverable(e.target.value)}
+                  className="form__input form__input--select"
+                >
+                  <option value="Instagram">Instagram</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="YouTube">YouTube</option>
+                </select>
+              </div>
+
+              <div className="btn-container btn-container--center mt-1p5">
+                <button
+                  onClick={() => setShowDeliverables(false)}
+                  type="button"
+                  className="btn-cta btn-cta--medium btn-cta--inactive"
+                >
+                  Previous Page
+                </button>
+                <button
+                  onClick={nextPage}
+                  type="button"
+                  disabled={!instagramDeliverable}
+                  className={instagramDeliverable ? "btn-cta btn-cta--medium btn-cta--active" : "btn-cta btn-cta--medium btn-cta--inactive"}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Payment Details */}
+          {showContractPayment && (
+            <div className="form-page">
+              <h4 className="form__text form__text--subheader">Payment Details</h4>
+            
+            </div>
+          )}
+
+          {/* Summary */}
+          {showSummary && <CreateProjectSummary />}
+        </form>
+      </div>
+    </div>,
+    document.getElementById("portal")
+  );
+};
+
+export default CreateBriefModal;

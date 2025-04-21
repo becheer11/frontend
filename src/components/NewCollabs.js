@@ -141,7 +141,7 @@ const NewCollabs = () => {
             </div>
             <div className="project-container__text-container">
               <h4 className="project-container__text project-container__text--company">
-                {brief.advertiserId?.companyName || "Unknown"}
+                {brief.advertiserId?.companyName}
               </h4>
               <h5 className="project-container__text project-container__text--title">
                 {brief.title.length > 20

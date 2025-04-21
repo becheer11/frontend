@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { faCheck, faPencil, faX, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
+import useAuth from "../hooks/useAuth";
+import AuthContext from "../context/AuthProvider";
 import axios from "../api/axios";
 import CreateCampaignModal from "./CreateCampaignModal";
 import ProjectModalPageOneReview from "./ProjectModalPageOneReview";
@@ -34,10 +36,14 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
   const [comment, setComment] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const { auth } = useAuth(AuthContext);
+
 
   useEffect(() => {
     console.log("Brief Modal:", brief);
-  }, []);
+    console.log("User Roles:", role); // Log the roles to verify it's an array and contains "Influencer"
+  }, [brief, role])
+  ;
 
   const handleSubmitReviewContract = async (action, e) => {
     e.preventDefault();
@@ -70,26 +76,6 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
             <FontAwesomeIcon icon={faX} />
           </button>
         </div>
-        <section className="space-y-6">
-            {(brief.status === "Reviewing Contract" || brief.status === "no influencer assigned") && (
-              <ProjectModalPageOneReview {...brief} role={role} />
-            )}
-            {role.includes("Brand") && brief.status === "in progress/waiting for submission" && (
-              <ProjectModalPageOneReview {...brief} role={role} />
-            )}
-            {brief.status === "in progress/waiting for submission" && role.includes("Influancer") && (
-              <ProjectModalPageOneInProgress handleSubmit={() => {}} {...brief} role={role} />
-            )}
-            {role.includes("Influancer") && ["brand reviewing", "ready to publish", "awaiting project payment"].includes(brief.status.toLowerCase()) && (
-              <ProjectModalPageOneSubmitted {...brief} role={role} handleSubmit={() => {}} onClose={onClose} />
-            )}
-            {role.includes("Brand") && brief.status === "Influencer submit campaign" && (
-              <ProjectModalPageOneBrandReview {...brief} role={role} handleSubmit={() => {}} onClose={onClose} />
-            )}
-            {role.includes("Brand") && brief.status === "awaiting project payment" && (
-              <ProjectModalPayment {...brief} role={role} project={brief} />
-            )}
-          </section>
 
         <div className="text-gray-800">
           <h1 className="text-4xl font-bold mb-4">{brief.title}</h1>
@@ -114,7 +100,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
         
 
           <div className="mt-8 flex flex-wrap gap-4">
-            { role.includes("Influancer")&&["no influencer assigned", "Reviewing Contract"].includes(brief.status) && !showAddComment && (
+            {["no influencer assigned"].includes(brief.status) && !showAddComment && (
               <>
                 <button onClick={() => setShowAddComment(true)} className="bg-yellow-400 hover:bg-yellow-500 text-white px-5 py-2 rounded-lg shadow">
                   <FontAwesomeIcon icon={faPencil} className="mr-2" /> Negotiate

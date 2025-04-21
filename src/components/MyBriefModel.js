@@ -44,7 +44,7 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
 
   return ReactDOM.createPortal(
     <div style={OVERLAY_STYLES} className="modal-overlay">
-      <div style={MODAL_STYLES} className="project-modal rounded-xl">
+      <div style={MODAL_STYLES} className="project-modal ">
         <div className="flex justify-between items-start mb-6">
           <button onClick={onClose} className="text-xl text-gray-600 hover:text-black">
             <FontAwesomeIcon icon={faX} />
