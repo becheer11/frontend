@@ -3,6 +3,8 @@ import useAuth from "../hooks/useAuth";
 import axios from "../api/axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import loginImg from "../assets/login.png";
+import Swal from "sweetalert2"; // Add this import
+
 import "../styles/login.scss";
 import Links from "./Links";
 
@@ -27,46 +29,60 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = { email, password };
-
+  
     try {
       const response = await axios.post(LOGIN_URL, JSON.stringify(payload), {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-
+  
       if (response?.data?.success) {
         const userData = response.data.user;
-
-        // Clear local storage and set new user data
+  
         localStorage.clear();
         localStorage.setItem("auth", JSON.stringify({
           user: userData.username,
           roles: userData.roles,
           email: userData.email
         }));
-
-        // Update auth context
+  
         setAuth({
           user: userData.username,
           roles: userData.roles,
           email: userData.email,
           accessToken: null,
         });
-
-        setEmail("");
-        setPassword("");
-        navigate(from);
+  
+        Swal.fire({
+          icon: "success",
+          title: "Welcome back!",
+          text: "You’ve successfully logged in.",
+          confirmButtonColor: "#1E90FF",
+        }).then(() => {
+          setEmail("");
+          setPassword("");
+          navigate(from);
+        });
       } else {
-        setErrMsg(response?.data?.message || "Login failed");
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: response?.data?.message || "Unknown error occurred",
+        });
       }
     } catch (err) {
-      if (!err?.response) {
-        setErrMsg("No server response.");
-      } else {
-        setErrMsg(err.response?.data?.message || "Login failed");
-      }
+      const message =
+        !err?.response
+          ? "No server response."
+          : err.response?.data?.message || "Something went wrong";
+  
+      Swal.fire({
+        icon: "error",
+        title: "Login Error",
+        text: message,
+      });
+  
       errRef.current?.focus();
     }
   };
@@ -112,7 +128,9 @@ const Login = () => {
               />
 
               <p id="uidnote" className="login-form__instructions">
+                <Link to="/forget-password" className="register__text register__text--subtle text--underline">
                 Forgot Password?
+                </Link>
               </p>
 
               <div className="flex-col-center">

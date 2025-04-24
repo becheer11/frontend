@@ -11,6 +11,9 @@ import Dashboard from "./components/Dashboard";
 import RequireAuth from "./components/RequireAuth";
 import TestForm from "./components/TestForm";
 import TestLogin from "./components/TestLogin";
+import EmailVerificationPage from "./components/EmailVerificationPage";
+import ResetPassword from "./components/ResetPasswordPage";
+import ForgotPassword from "./components/ForgetPasswordPage";
 
 const ROLES = {
   Admin: "Admin",
@@ -21,35 +24,32 @@ const ROLES = {
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Register />} />
-      <Route path="testform" element={<TestForm />} />
-      <Route path="testlogin" element={<TestLogin />} />
-      <Route path="login" element={<Login />} />
-      <Route path="links" element={<Links />} />
-      <Route path="changepassword" element={<ChangePassword />} />
-      <Route path="unauthorized" element={<Unauthorized />} />
-
-      <Route
-        element={
-          <RequireAuth
-            allowedRoles={[ROLES.Admin, ROLES.Influencer, ROLES.Brand]}
-          />
-        }
-      >
-        <Route path="updateprofile" element={<UpdateProfile />} />
+      {/* Public Routes */}
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Register />} />
+        <Route path="login" element={<Login />} />
+        <Route path="verify-email" element={<EmailVerificationPage />} />
+        <Route path="forget-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="*" element={<ErrorPage />} />
       </Route>
 
-      <Route
-        element={
-          <RequireAuth
-            allowedRoles={[ROLES.Admin, ROLES.Influencer, ROLES.Brand]}
-          />
-        }
-      >
+      {/* Protected Routes (Require Authentication) */}
+      <Route element={<RequireAuth allowedRoles={[ROLES.Admin, ROLES.Influencer, ROLES.Brand]} />}>
+        <Route path="changepassword" element={<ChangePassword />} />
+        <Route path="updateprofile" element={<UpdateProfile />} />
         <Route path="dashboard" element={<Dashboard />} />
       </Route>
 
-      <Route path="*" element={<ErrorPage />} />
+      {/* Unauthorized Route */}
+      <Route path="unauthorized" element={<Unauthorized />} />
+
+      {/* Test Routes (For Development Purposes) */}
+      <Route path="testform" element={<TestForm />} />
+      <Route path="testlogin" element={<TestLogin />} />
+
+      {/* Links (this can be a user dashboard or profile page) */}
+      <Route path="links" element={<Links />} />
     </Routes>
   );
 };

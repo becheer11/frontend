@@ -1,6 +1,8 @@
 import React from "react";
 import { useRef, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
+
 import {
   faCheck,
   faTimes,
@@ -69,65 +71,68 @@ const RegisterForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowInfluencerPageOne(false);
-    setShowBrandPageOne(false);
-    console.log("inside handle submit");
-
-    // If register button is hacked, validate username/pwd again here and in backend
-    // const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
-    if (!v2) {
-      setErrMsg("Invalid Entry");
+    if (!v2 || pwd !== matchPwd) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid password",
+        text: "Make sure it matches the requirements and confirmation.",
+      });
       return;
     }
-    // To skip backend - uncomment the next 2 lines.
-    // setSuccess(true);
-    // console.log(user, pwd);
+  
     try {
-      // Construct the endpoint with role as a parameter
       const REGISTER_URL = `/api/auth/signup/${role}`;
-      
       const payload = JSON.stringify({
-        email: user, // Changed from 'user' to 'email' if your backend expects 'email'
+        email: user,
         password: pwd,
-        companyName:company ,
+        companyName: company,
         username,
         firstName,
         lastName,
-        // Add other fields as needed
       });
-
-      console.log("Sending to:", REGISTER_URL);
-      console.log("Payload:", payload);
-
+  
       const response = await axios.post(REGISTER_URL, payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-
-      console.log("Response:", response);
-      
-      if (response.status === 200 || response.status === 201) {
-        setSuccess(true);
-        setUser("");
-        setPwd("");
-        setCompany("");
-        setUsername("");
-        setMatchPwd("");
+  
+      if (response.status === 200 || response.status === 201 || response.status==400) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Account Created!',
+          text: 'A verification code has been sent to your email.',
+          confirmButtonColor: '#1E90FF' // Change this to any HEX, RGB, or CSS color name
+        })
+        .then(() => {
+          setUser("");
+          setPwd("");
+          setCompany("");
+          setUsername("");
+          setMatchPwd("");
+          setSuccess(true);
+        });
       }
     } catch (err) {
       console.error("Registration error:", err);
+      let message = "Registration Failed";
       if (!err?.response) {
-        setErrMsg("No Server Response");
+        message = "No Server Response";
+        setSuccess(true);
+
       } else if (err.response?.status === 400) {
-        setErrMsg(err.response.data?.message || "Username is taken");
-      } else {
-        setErrMsg("Registration Failed");
+        setSuccess(true);
+
+        message = err.response.data?.message || "Invalid data";
       }
-      errRef.current.focus();
+  
+      Swal.fire({
+        icon: "error",
+        title: "Registration Error",
+        text: message,
+      });
     }
+
   
   };
   return (
@@ -136,6 +141,15 @@ const RegisterForm = ({
         <section>
           <h1 className="register__title">Account Created!</h1>
           <p>
+            please verify your mail to continue
+          <button
+              onClick={() => {
+                navigate("/verify-email");
+              }}
+              className="register__btn-cta"
+            >
+              Verify email
+            </button>
             <button
               onClick={() => {
                 navigate("/login");

@@ -60,6 +60,11 @@ const Links = () => {
           <section className="links">
             <nav className="links-container">
               <Link to="/register"> Register </Link>
+              <Link to="/verify-email"> Verify your mail</Link>
+              <Link to="/reset-password">Reset your password</Link>
+              <Link to="/forget-password">Enter your mail</Link>
+
+
               <Link to="/login"> Login </Link>
               <Link to="/changepassword"> Change Password </Link>
               <Link to="/updateprofile"> Update Profile</Link>

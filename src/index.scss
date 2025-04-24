@@ -381,6 +381,17 @@ label {
 }
 
 /* Helper Classes */
+.valid-password {
+  color: green;
+}
+
+.invalid-password {
+  color: red;
+}
+
+.login__error {
+  color: red;
+}
 
 .btn-holder {
   display: flex;

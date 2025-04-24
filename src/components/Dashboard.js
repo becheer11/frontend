@@ -15,11 +15,13 @@ import CreateProjectModal from "./CreateProjectModal";
 import CreateBriefModal from "./CreateBriefModal";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import "../styles/dashboard.scss";
+import Swal from "sweetalert2"; // Add this import
+
 import colabFolder from "../assets/colab-logo.png";
 import colabTextTransparent from "../assets/colab-text-transparent.png";
 import axios from "../api/axios";
 import MyBriefModel from "./MyBriefModel"; // Import MyBriefModel
-import MyCampaignModal from "./MyCampaignModal"; // Import MyCampaignModal
+import MyCampaignModal from "./CreateCampaignModal"; // Import MyBriefModel
 
 const BUTTON_WRAPPER_STYLES = {
   position: "relative",
@@ -47,10 +49,33 @@ const Dashboard = () => {
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [showCreateBriefModal, setShowCreateBriefModal] = useState(false);
 
-  // Fetch the data based on user role
+  // Define fetchData here
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout", {}, { withCredentials: true });
+      localStorage.clear();
+      Swal.fire({
+        icon: "success",
+        title: "Logged out",
+        text: "You have been successfully logged out.",
+        confirmButtonColor: "#1E90FF"
+      }).then(() => {
+        navigate("/login");
+      });
+    } catch (error) {
+      console.error("Logout failed", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Logout failed. Please try again.",
+      });
+    }
+  };
   const fetchData = async () => {
     try {
-      const endpoint = auth.roles.includes("Influencer") ? "/api/my-campaigns" : "/api/mybriefs";
+      const endpoint = auth.roles.includes("Influencer")
+        ? "/api/my-campaigns"
+        : "/api/mybriefs";
       const res = await axios.get(endpoint, {
         withCredentials: true,
       });
@@ -59,8 +84,20 @@ const Dashboard = () => {
       console.error("Failed to fetch data", error);
     }
   };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const endpoint = auth.roles.includes("Influencer")
+          ? "/api/my-campaigns"
+          : "/api/mybriefs";
+        const res = await axios.get(endpoint, {
+          withCredentials: true,
+        });
+        setItems(auth.roles.includes("Influencer") ? res.data.campaigns : res.data.briefs);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+      }
+    };
     const fetchUser = async () => {
       try {
         const res = await axios.get("/api/user/getuser", {
@@ -241,9 +278,10 @@ const Dashboard = () => {
             </div>
             <div className="dashboard-header-right">
               <FontAwesomeIcon icon={faBell} className="icon-medium" />
-              <Link to="/login" className="link link--dark">
-                <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
-              </Link>
+              <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
+  <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
+</button>
+
               {user.avatar && (
                 <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
                   <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
@@ -252,6 +290,18 @@ const Dashboard = () => {
             </div>
           </header>
         ) : null}
+
+        {auth.roles.includes("Brand") && !showNewCollabs && (
+          <div className="dashboard-header dashboard-header--justify-right">
+            <button
+              onClick={() => setShowCreateBriefModal(true)}
+              className="form__btn-dotted form__btn-dotted--medium"
+            >
+              <FontAwesomeIcon icon={faPlus} className="icon-left" />
+              Create a New Brief
+            </button>
+          </div>
+        )}
 
         {!showNewCollabs ? (
           <section className="project-container">
@@ -263,8 +313,12 @@ const Dashboard = () => {
               <button key={item._id} onClick={() => expandItem(item)} className="dashboard__btn">
                 <div className="img-container">
                   <img
-                    src={item.advertiserId?.userId.profilePhoto.url || projectCard}
-                    alt="campaign"
+                      src={   item.advertiserId?.userId.profilePhoto.url 
+                      ||
+                        
+                        projectCard}
+
+                    alt="project"
                     className="project-container__img"
                   />
                   <p className="img-container__text">
@@ -273,14 +327,27 @@ const Dashboard = () => {
                 </div>
                 <div className="project-container__text-container">
                   <h4 className="project-container__text project-container__text--company">
-                    {item.advertiserId?.companyName || item.creatorId?.userId?.username || "Unknown"}
+                    {item.advertiserId?.companyName ||
+                      item.creatorId?.userId?.username ||
+                      "Unknown"}
                   </h4>
                   <h5 className="project-container__text project-container__text--title">
-                    {item.title?.length > 20 ? `${item.title.slice(0, 20)}...` : item.title}
+                    {item.title?.length > 20 ? item.title.slice(0, 20) + "..." : item.title}
                   </h5>
+                  <h7 className="project-container__text project-container__text--title">
+                    {item.description?.length > 20
+                      ? item.description.slice(0, 20) + "..."
+                      : item.description}
+                  </h7>
                   <h6 className="project-container__text project-container__text--date">
-                    Due Date: {item.deadline ? new Date(item.deadline).toLocaleDateString() : "N/A"}
+                    Due Date:{" "}
+                    {item.deadline ? new Date(item.deadline).toLocaleDateString() : "N/A"}
                   </h6>
+                  <div className="project-container__text project-container__text--status">
+                    {item.status && `📌 ${item.status}`}
+                    {item.budget && ` | 💰 $${item.budget}`}
+                    {item.paymentStatus && ` | 💳 ${item.paymentStatus}`}
+                  </div>
                 </div>
               </button>
             ))}
@@ -289,25 +356,47 @@ const Dashboard = () => {
           <NewCollabs />
         )}
 
+
+        <div style={BUTTON_WRAPPER_STYLES}>
         {showModal && (
-          auth.roles.includes("Influencer") ? (
-            <MyCampaignModal
-              isOpen={showModal}
-              onClose={() => setShowModal(false)}
-              campaign={projectModal}
-              user={user}
-              refreshDashboard={fetchData}
-            />
-          ) : (
-            <MyBriefModel
-              isOpen={showModal}
-              onClose={() => setShowModal(false)}
-              brief={projectModal}
-              role={auth.roles}
-              user={user}
-              refreshDashboard={fetchData}
-            />
-          )
+        auth.roles.includes("Influencer") ? (
+          <MyCampaignModal
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            campaign={projectModal}
+            user={user}
+            refreshDashboard={fetchData}
+          />
+        ) : (
+          <MyBriefModel
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            brief={projectModal}
+            role={auth.roles}
+            user={user}
+            refreshDashboard={fetchData}
+          />
+        )
+      )}
+          
+        </div>
+
+        {showCreateProjectModal && (
+          <CreateProjectModal
+            isOpen={showCreateProjectModal}
+            onClose={() => setShowCreateProjectModal(false)}
+            project={projectModal}
+            role={auth.roles}
+            brand={user?.firstName}
+            OVERLAY_STYLES={OVERLAY_STYLES}
+          />
+        )}
+
+        {showCreateBriefModal && (
+          <CreateBriefModal
+            isOpen={showCreateBriefModal}
+            onClose={() => setShowCreateBriefModal(false)}
+          />
         )}
       </div>
     </section>
@@ -315,3 +404,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
