@@ -35,6 +35,8 @@ const RegisterForm = ({
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const[tiktokUsername,settiktokUsername]= useState("");
+  const[instaUsername,setinstaUsername]= useState("");
 
   // state for password input
   const [pwd, setPwd] = useState("");
@@ -90,6 +92,8 @@ const RegisterForm = ({
         username,
         firstName,
         lastName,
+        tiktokUsername: tiktokUsername,
+        instaUsername: instaUsername,
       });
   
       const response = await axios.post(REGISTER_URL, payload, {
@@ -118,10 +122,8 @@ const RegisterForm = ({
       let message = "Registration Failed";
       if (!err?.response) {
         message = "No Server Response";
-        setSuccess(true);
 
       } else if (err.response?.status === 400) {
-        setSuccess(true);
 
         message = err.response.data?.message || "Invalid data";
       }
@@ -196,7 +198,7 @@ const RegisterForm = ({
                 <>
                   <form onSubmit={handleSubmit} className="register-form">
                     <label htmlFor="firstName" className="register-form__label">
-                      First Name
+                      First Name:
                     </label>
                     <input
                       type="text"
@@ -209,8 +211,9 @@ const RegisterForm = ({
                       placeholder="first name"
                       className="register-form__input"
                     />
+                    
                     <label htmlFor="lastName" className="register-form__label">
-                      Last Name
+                      Last Name:
                     </label>
                     <input
                       type="text"
@@ -221,6 +224,34 @@ const RegisterForm = ({
                       }}
                       required
                       placeholder="last name"
+                      className="register-form__input"
+                    />
+                     <label htmlFor="instaUsername" className="register-form__label">
+                      Instagram Username: 
+                    </label>
+                    <input
+                      type="text"
+                      id="instaUsername"
+                      autoComplete="off"
+                      onChange={(e) => {
+                        setinstaUsername(e.target.value);
+                      }}
+                      required
+                      placeholder="instaUsername"
+                      className="register-form__input"
+                    />
+                     <label htmlFor="instaUsername" className="register-form__label">
+                      Tiktok Username:
+                    </label>
+                    <input
+                      type="text"
+                      id="tiktokUsername"
+                      autoComplete="off"
+                      onChange={(e) => {
+                        settiktokUsername(e.target.value);
+                      }}
+                      required
+                      placeholder="tiktokUsername"
                       className="register-form__input"
                     />
                      <label htmlFor="username" className="register-form__label">
@@ -416,6 +447,7 @@ const RegisterForm = ({
                         />
                       </div>
                     </div>
+                    
                     <label htmlFor="username" className="register-form__label">
                     Username:
                   </label>
@@ -428,6 +460,34 @@ const RegisterForm = ({
                     placeholder="username"
                     className="register-form__input"
                   />
+                  <label htmlFor="instaUsername" className="register-form__label">
+                      Instagram Username: 
+                    </label>
+                    <input
+                      type="text"
+                      id="instaUsername"
+                      autoComplete="off"
+                      onChange={(e) => {
+                        setinstaUsername(e.target.value);
+                      }}
+                      required
+                      placeholder="instaUsername"
+                      className="register-form__input"
+                    />
+                     <label htmlFor="instaUsername" className="register-form__label">
+                      Tiktok Username:
+                    </label>
+                    <input
+                      type="text"
+                      id="tiktokUsername"
+                      autoComplete="off"
+                      onChange={(e) => {
+                        settiktokUsername(e.target.value);
+                      }}
+                      required
+                      placeholder="tiktokUsername"
+                      className="register-form__input"
+                    />
                     <label htmlFor="username" className="register-form__label">
                       Email:
                     </label>
@@ -446,7 +506,7 @@ const RegisterForm = ({
                       className="register-form__input"
                     />
                     <label htmlFor="company" className="register-form__label">
-                      Company
+                      Brand Name
                     </label>
                     <input
                       type="text"
@@ -456,7 +516,7 @@ const RegisterForm = ({
                         setCompany(e.target.value);
                       }}
                       required
-                      placeholder="company"
+                      placeholder="brand "
                       className="register-form__input"
                     />
 

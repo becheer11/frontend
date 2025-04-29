@@ -14,6 +14,7 @@ import TestLogin from "./components/TestLogin";
 import EmailVerificationPage from "./components/EmailVerificationPage";
 import ResetPassword from "./components/ResetPasswordPage";
 import ForgotPassword from "./components/ForgetPasswordPage";
+import Home from "components/Home";
 
 const ROLES = {
   Admin: "Admin",
@@ -28,6 +29,8 @@ const App = () => {
       <Route path="/" element={<Layout />}>
         <Route index element={<Register />} />
         <Route path="login" element={<Login />} />
+        <Route path="home" element={<Home />} />
+
         <Route path="verify-email" element={<EmailVerificationPage />} />
         <Route path="forget-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />

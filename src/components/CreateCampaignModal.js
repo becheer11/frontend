@@ -94,37 +94,7 @@ const CreateCampaignModal = ({ isOpen, onClose, OVERLAY_STYLES, brief }) => {
               />
             </div>
 
-            <div className="label-row-container__col">
-              <label className="form__label">Content URLs</label>
-              {contentUrls.map((url, index) => (
-                <div key={index} className="url-input-row">
-                  <input
-                    type="text"
-                    value={url}
-                    onChange={(e) => handleUrlChange(e.target.value, index)}
-                    className="form__input"
-                    placeholder="e.g., https://yourlink.com"
-                    required
-                  />
-                  {contentUrls.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveUrl(index)}
-                      className="btn-delete"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddUrl}
-                className="btn-cta btn-cta--small mt-1"
-              >
-                <FontAwesomeIcon icon={faPlus} className="icon-left" /> Add URL
-              </button>
-            </div>
+         
 
             {/* Attachment File Input */}
             <div className="label-row-container__col">

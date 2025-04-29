@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,6 +7,10 @@ import axios from "../api/axios";
 import AuthContext from "../context/AuthProvider";
 import "../styles/createprojectmodal.scss";
 import "../styles/dashboard.scss";
+import { validateBrief, validateFile } from "../validators/briefValidator";
+import { useForm } from "../hooks/useForm";
+import { toast } from "react-toastify";
+import CreateBriefSummary from "./CreateBriefSummary";
 
 const MODAL_STYLES = {
   position: "fixed",
@@ -17,93 +21,215 @@ const MODAL_STYLES = {
   zIndex: 1000,
 };
 
-const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
+const OVERLAY_STYLES = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.7)",
+  zIndex: 1000,
+};
+
+const INITIAL_FORM_STATE = {
+  title: "",
+  description: "",
+  categories: [],
+  phrases: [],
+  tags: [],
+  budget: "",
+  targetPlatform: "Instagram",
+  reviewDeadline: "",
+  deadline: "",
+  attachment: null,
+};
+
+const CreateBriefModal = ({ isOpen, onClose }) => {
   const { auth } = useAuth(AuthContext);
+  const fileInputRef = useRef(null);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  
+  const {
+    formData,
+    setFormData,
+    handleChange,
+    handleArrayChange,
+    handleFileChange,
+    resetForm
+  } = useForm(INITIAL_FORM_STATE);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [phrases, setPhrases] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [budget, setBudget] = useState("");
-  const [targetPlatform, setTargetPlatform] = useState("Instagram");
-  const [reviewDeadline, setReviewDeadline] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [attachment, setAttachment] = useState(null);
-  const [showSummary, setShowSummary] = useState(false);
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+      setErrors({});
+      setCurrentPage(0);
+      setServerError(null);
+      setShowSuccess(false);
+    }
+  }, [isOpen, resetForm]);
 
-  const [currentPage, setCurrentPage] = useState(0); // To control page navigation
-   const [showSuccess, setShowSuccess] = useState(false);
- 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e, field) => {
     if (e.key !== "Enter") return;
+    e.preventDefault();
+    
     const value = e.target.value.trim();
     if (!value) return;
 
-    if (e.target.className === "tags-input") {
-      setTags((prevTags) => [...prevTags, value]);
-    } else if (e.target.className === "phrases-input") {
-      setPhrases((prevPhrases) => [...prevPhrases, value]);
-    } else if (e.target.className === "categories-input") {
-      setCategories((prevCategories) => [...prevCategories, value]);
+    if (formData[field] === undefined) {
+      toast.error(`Field ${field} is not defined in form data`);
+      return;
     }
 
-    e.target.value = ""; // Clear the input field after pressing Enter
+    if (!Array.isArray(formData[field])) {
+      toast.error(`Field ${field} is not an array`);
+      return;
+    }
+
+    if (!formData[field].includes(value)) {
+      handleChange(field, [...formData[field], value]);
+    } else {
+      toast.warning(`${value} already exists in ${field}`);
+    }
+    
+    e.target.value = "";
   };
 
-  const removeItem = (e, deleteIndex, type) => {
-    if (type === "tags") {
-      setTags(tags.filter((_, i) => i !== deleteIndex));
-    } else if (type === "phrases") {
-      setPhrases(phrases.filter((_, i) => i !== deleteIndex));
-    } else if (type === "categories") {
-      setCategories(categories.filter((_, i) => i !== deleteIndex));
+  const removeItem = (field, index) => {
+    if (formData[field] === undefined) {
+      toast.error(`Field ${field} is not defined in form data`);
+      return;
     }
+
+    if (!Array.isArray(formData[field])) {
+      toast.error(`Field ${field} is not an array`);
+      return;
+    }
+
+    const newArray = formData[field].filter((_, i) => i !== index);
+    handleChange(field, newArray);
   };
 
   const nextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+    const pageErrors = validateCurrentPage();
+    if (Object.keys(pageErrors).length === 0) {
+      setCurrentPage((prev) => prev + 1);
+      setErrors({});
+    } else {
+      setErrors(pageErrors);
+      const firstError = Object.values(pageErrors)[0];
+      toast.error(firstError);
+    }
   };
 
   const previousPage = () => {
-    setCurrentPage((prevPage) => prevPage - 1);
+    setCurrentPage((prev) => prev - 1);
+    setErrors({});
+  };
+
+  const validateCurrentPage = () => {
+    const pageValidations = {
+      0: () => {
+        const newErrors = {};
+        if (!formData.title.trim()) newErrors.title = "Title is required";
+        if (!formData.description.trim()) newErrors.description = "Description is required";
+        if (formData.description.length > 1000) newErrors.description = "Description must be less than 1000 characters";
+        if (!formData.reviewDeadline) newErrors.reviewDeadline = "Review deadline is required";
+        if (!formData.deadline) newErrors.deadline = "Final deadline is required";
+        
+        if (formData.reviewDeadline && formData.deadline) {
+          const reviewDate = new Date(formData.reviewDeadline);
+          const deadlineDate = new Date(formData.deadline);
+          if (reviewDate >= deadlineDate) {
+            newErrors.reviewDeadline = "Review deadline must be before final deadline";
+          }
+          if (deadlineDate < new Date()) {
+            newErrors.deadline = "Deadline must be in the future";
+          }
+        }
+        return newErrors;
+      },
+      1: () => {
+        const newErrors = {};
+        if (!formData.categories || formData.categories.length === 0) {
+          newErrors.categories = "At least one category is required";
+        }
+        if (!formData.targetPlatform) newErrors.targetPlatform = "Platform is required";
+        return newErrors;
+      },
+      2: () => {
+        const newErrors = {};
+        if (!formData.budget) newErrors.budget = "Budget is required";
+        if (formData.budget && (isNaN(formData.budget) || formData.budget <= 0)) {
+          newErrors.budget = "Budget must be a positive number";
+        }
+        return newErrors;
+      },
+      3: () => {
+        const newErrors = {};
+        if (formData.attachment) {
+          const fileError = validateFile(formData.attachment);
+          if (fileError) newErrors.attachment = fileError;
+        }
+        return newErrors;
+      }
+    };
+
+    return pageValidations[currentPage] ? pageValidations[currentPage]() : {};
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setServerError(null);
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("budget", Number(budget));
-    formData.append("targetPlatform", targetPlatform);
-    formData.append("reviewDeadline", reviewDeadline);
-    formData.append("deadline", deadline);
-
-    categories.forEach((cat) => formData.append("categories[]", cat));
-    phrases.forEach((phrase) => formData.append("phrases[]", phrase));
-    tags.forEach((tag) => formData.append("tags[]", tag));
-
-    // Attach the file only when it's on the last step
-    if (attachment) {
-      formData.append("attachment", attachment);
+    const validationErrors = validateBrief(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setIsSubmitting(false);
+      toast.error("Please fix all errors before submitting");
+      return;
     }
 
     try {
-      const response = await axios.post("/api/brief", formData, {
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "attachment" && value) {
+          formDataToSend.append(key, value);
+        } else if (Array.isArray(value)) {
+          value.forEach(item => formDataToSend.append(`${key}[]`, item));
+        } else {
+          formDataToSend.append(key, value);
+        }
+      });
+
+      const response = await axios.post("/api/brief", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${auth?.accessToken}`,
         },
         withCredentials: true,
       });
 
       if (response.status === 201) {
-        alert("Brief created successfully!");
-        onClose();
+        toast.success("Brief created successfully!");
+        setShowSuccess(true);
+        setTimeout(() => {
+          onClose();
+          resetForm();
+        }, 1500);
       }
     } catch (err) {
       console.error("Error creating brief:", err);
-      alert("Failed to create brief");
+      const errorMessage = err.response?.data?.message || 
+        "Failed to create brief. Please try again later.";
+      setServerError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -113,274 +239,341 @@ const CreateBriefModal = ({ isOpen, onClose, OVERLAY_STYLES }) => {
     <div style={OVERLAY_STYLES}>
       <div style={MODAL_STYLES} className="create-project-modal">
         <div className="btn-container btn-container--right">
-          <button className="btn-hide" onClick={onClose} type="button">
+          <button 
+            className="btn-hide" 
+            onClick={onClose} 
+            type="button"
+            disabled={isSubmitting}
+          >
             <FontAwesomeIcon icon={faX} className="icon-left" />
           </button>
         </div>
+        
         <form className="form" onSubmit={handleSubmit}>
           <h2 className="form__text form__text--header">
-            {!showSuccess ? "Create a Brief" : "Success!"}
+            {showSuccess ? "Brief Created Successfully!" : "Create a Brief"}
           </h2>
 
-          {/* Page 0: Contract Details */}
-          {currentPage === 0 && (
-            <div className="form-page">
-              <h4 className="form__text form__text--subheader">Overview</h4>
-
-              <div className="label-row-container__col">
-                <label htmlFor="title" className="form__label">
-                  Campaign Title
-                </label>
-                <input
-                  onChange={(e) => setTitle(e.target.value)}
-                  type="text"
-                  id="title"
-                  autoComplete="off"
-                  value={title}
-                  required
-                  placeholder="Title"
-                  className="form__input"
-                />
-              </div>
-
-              <div className="label-row-container__col">
-                <label htmlFor="description" className="form__label">
-                  Brief Description (200 Words Max)
-                </label>
-                <textarea
-                  onChange={(e) => setDescription(e.target.value)}
-                  type="text"
-                  id="description"
-                  autoComplete="off"
-                  value={description}
-                  required
-                  placeholder="Description"
-                  className="form__input form__input--textarea"
-                  rows="6"
-                  cols="50"
-                />
-              </div>
-
-              <div className="label-row-container__col">
-                <label className="form__label">Review Deadline</label>
-                <input
-                  type="date"
-                  value={reviewDeadline}
-                  onChange={(e) => setReviewDeadline(e.target.value)}
-                  className="form__input"
-                  required
-                />
-              </div>
-
-              <div className="label-row-container__col">
-                <label className="form__label">Final Deadline</label>
-                <input
-                  type="date"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="form__input"
-                  required
-                />
-              </div>
-
-              <div className="btn-container btn-container--center mt-1p5">
-                <button
-                  onClick={nextPage}
-                  type="button"
-                  disabled={title && description ? false : true}
-                  className={
-                    title && description
-                      ? "btn-cta btn-cta--medium btn-cta--active"
-                      : "btn-cta btn-cta--medium btn-cta--inactive"
-                  }
-                >
-                  Next
-                </button>
-              </div>
+          {serverError && (
+            <div className="form-error">
+              <p>{serverError}</p>
             </div>
           )}
 
-          {/* Page 1: Deliverables */}
-          {currentPage === 1 && (
-            <div className="form-page">
-              <h4 className="form__text form__text--subheader">Deliverables</h4>
-
-              {/* Categories */}
-              <div className="label-row-container__col">
-                <label className="form__label">Categories</label>
-                <input
-                  onKeyDown={handleKeyDown}
-                  type="text"
-                  className="categories-input"
-                  placeholder="Add a category"
-                />
-                <div className="keywords-container">
-                  {categories.map((cat, i) => (
-                    <div className="keywords-item" key={i}>
-                      <span className="keywords-text">{cat}</span>
-                      <span
-                        onClick={(e) => removeItem(e, i, "categories")}
-                        className="keywords-delete"
-                      >
-                        &times;
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Phrases */}
-              <div className="label-row-container__col">
-                <label className="form__label">Phrases</label>
-                <input
-                  onKeyDown={handleKeyDown}
-                  type="text"
-                  className="phrases-input"
-                  placeholder="Add a phrase"
-                />
-                <div className="keywords-container">
-                  {phrases.map((phrase, i) => (
-                    <div className="keywords-item" key={i}>
-                      <span className="keywords-text">{phrase}</span>
-                      <span
-                        onClick={(e) => removeItem(e, i, "phrases")}
-                        className="phrases-delete"
-                      >
-                        &times;
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div className="label-row-container__col">
-                <label className="form__label">Tags</label>
-                <input
-                  onKeyDown={handleKeyDown}
-                  type="text"
-                  className="tags-input"
-                  placeholder="Add a tag"
-                />
-                <div className="keywords-container">
-                  {tags.map((tag, i) => (
-                    <div className="keywords-item" key={i}>
-                      <span className="keywords-text">{tag}</span>
-                      <span
-                        onClick={(e) => removeItem(e, i, "tags")}
-                        className="tags-delete"
-                      >
-                        &times;
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Target Platform */}
-              <div className="label-row-container__col">
-                <label htmlFor="platform" className="form__label">
-                  Platform
-                </label>
-                <select
-                  value={targetPlatform}
-                  onChange={(e) => setTargetPlatform(e.target.value)}
-                  className="form__input form__input--select"
-                >
-                  <option value="Instagram">Instagram</option>
-                  <option value="TikTok">TikTok</option>
-                  <option value="YouTube">YouTube</option>
-                </select>
-              </div>
-
-              <div className="btn-container btn-container--center mt-1p5">
-                <button
-                  onClick={previousPage}
-                  type="button"
-                  className="btn-cta btn-cta--medium btn-cta--inactive"
-                >
-                  Previous Page
-                </button>
-                <button
-                  onClick={nextPage}
-                  type="button"
-                  disabled={!targetPlatform}
-                  className={
-                    targetPlatform
-                      ? "btn-cta btn-cta--medium btn-cta--active"
-                      : "btn-cta btn-cta--medium btn-cta--inactive"
-                  }
-                >
-                  Next
-                </button>
-              </div>
+          {showSuccess ? (
+            <div className="form-success">
+              <p>Your brief has been successfully created!</p>
             </div>
-          )}
+          ) : (
+            <>
+              {/* Page 0: Overview */}
+              {currentPage === 0 && (
+                <div className="form-page">
+                  <h4 className="form__text form__text--subheader">Overview</h4>
 
-          {/* Page 2: Payment Details */}
-          {currentPage === 2 && (
-            <div className="form-page">
-              <h4 className="form__text form__text--subheader">Payment Details</h4>
-              <label className="form__label">Budget (CAD)</label>
-              <input
-                type="number"
-                className="form__input"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                required
-              />
-              <div className="btn-container btn-container--center mt-1p5">
-                <button
-                  onClick={previousPage}
-                  type="button"
-                  className="btn-cta btn-cta--medium btn-cta--inactive"
-                >
-                  Previous Page
-                </button>
-                <button
-                  onClick={nextPage}
-                  type="button"
-                  disabled={budget ? false : true}
-                  className={
-                    budget ? "btn-cta btn-cta--medium btn-cta--active" : "btn-cta btn-cta--medium btn-cta--inactive"
-                  }
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
+                  <div className="label-row-container__col">
+                    <label htmlFor="title" className="form__label">
+                      Campaign Title*
+                    </label>
+                    <input
+                      onChange={(e) => handleChange("title", e.target.value)}
+                      type="text"
+                      id="title"
+                      autoComplete="off"
+                      value={formData.title}
+                      placeholder="Title"
+                      className={`form__input ${errors.title ? "input-error" : ""}`}
+                    />
+                    {errors.title && <span className="error-message">{errors.title}</span>}
+                  </div>
 
-          {/* Page 3: Attachment (Final Step) */}
-          {currentPage === 3 && (
-            <div className="form-page">
-              <div className="label-row-container__col">
-                <label className="form__label">Attachment (Image/Video)</label>
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  className="form__input"
-                  onChange={(e) => setAttachment(e.target.files[0])}
-                  required
-                />
-              </div>
+                  <div className="label-row-container__col">
+                    <label htmlFor="description" className="form__label">
+                      Brief Description (200 Words Max)*
+                    </label>
+                    <textarea
+                      onChange={(e) => handleChange("description", e.target.value)}
+                      type="text"
+                      id="description"
+                      autoComplete="off"
+                      value={formData.description}
+                      placeholder="Description"
+                      className={`form__input form__input--textarea ${errors.description ? "input-error" : ""}`}
+                      rows="6"
+                      cols="50"
+                    />
+                    {errors.description && <span className="error-message">{errors.description}</span>}
+                  </div>
 
-              <div className="btn-container btn-container--center mt-1p5">
-                <button
-                  onClick={previousPage}
-                  type="button"
-                  className="btn-cta btn-cta--medium btn-cta--inactive"
-                >
-                  Previous Page
-                </button>
-                <button
-                  type="submit"
-                  className="btn-cta btn-cta--medium btn-cta--active"
-                >
-                  Create Brief
-                </button>
-              </div>
-            </div>
+                  <div className="label-row-container__col">
+                    <label className="form__label">Review Deadline*</label>
+                    <input
+                      type="date"
+                      value={formData.reviewDeadline}
+                      onChange={(e) => handleChange("reviewDeadline", e.target.value)}
+                      className={`form__input ${errors.reviewDeadline ? "input-error" : ""}`}
+                    />
+                    {errors.reviewDeadline && <span className="error-message">{errors.reviewDeadline}</span>}
+                  </div>
+
+                  <div className="label-row-container__col">
+                    <label className="form__label">Final Deadline*</label>
+                    <input
+                      type="date"
+                      value={formData.deadline}
+                      onChange={(e) => handleChange("deadline", e.target.value)}
+                      className={`form__input ${errors.deadline ? "input-error" : ""}`}
+                    />
+                    {errors.deadline && <span className="error-message">{errors.deadline}</span>}
+                  </div>
+
+                  <div className="btn-container btn-container--center mt-1p5">
+                    <button
+                      onClick={nextPage}
+                      type="button"
+                      disabled={!formData.title || !formData.description || !formData.reviewDeadline || !formData.deadline}
+                      className="btn-cta btn-cta--medium"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Page 1: Deliverables */}
+              {currentPage === 1 && (
+                <div className="form-page">
+                  <h4 className="form__text form__text--subheader">Deliverables</h4>
+
+                  <div className="label-row-container__col">
+                    <label className="form__label">Categories*</label>
+                    <input
+                      onKeyDown={(e) => handleKeyDown(e, "categories")}
+                      type="text"
+                      className={`categories-input ${errors.categories ? "input-error" : ""}`}
+                      placeholder="Add a category"
+                    />
+                    <div className="keywords-container">
+                      {formData.categories && formData.categories.map((cat, i) => (
+                        <div className="keywords-item" key={i}>
+                          <span className="keywords-text">{cat}</span>
+                          <span
+                            onClick={() => removeItem("categories", i)}
+                            className="keywords-delete"
+                          >
+                            &times;
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {errors.categories && <span className="error-message">{errors.categories}</span>}
+                  </div>
+
+                  <div className="label-row-container__col">
+                    <label className="form__label">Phrases</label>
+                    <input
+                      onKeyDown={(e) => handleKeyDown(e, "phrases")}
+                      type="text"
+                      className="phrases-input"
+                      placeholder="Add a phrase"
+                    />
+                    <div className="keywords-container">
+                      {formData.phrases && formData.phrases.map((phrase, i) => (
+                        <div className="keywords-item" key={i}>
+                          <span className="keywords-text">{phrase}</span>
+                          <span
+                            onClick={() => removeItem("phrases", i)}
+                            className="phrases-delete"
+                          >
+                            &times;
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="label-row-container__col">
+                    <label className="form__label">Tags</label>
+                    <input
+                      onKeyDown={(e) => handleKeyDown(e, "tags")}
+                      type="text"
+                      className="tags-input"
+                      placeholder="Add a tag"
+                    />
+                    <div className="keywords-container">
+                      {formData.tags && formData.tags.map((tag, i) => (
+                        <div className="keywords-item" key={i}>
+                          <span className="keywords-text">{tag}</span>
+                          <span
+                            onClick={() => removeItem("tags", i)}
+                            className="tags-delete"
+                          >
+                            &times;
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="label-row-container__col">
+                    <label htmlFor="platform" className="form__label">
+                      Platform*
+                    </label>
+                    <select
+                      value={formData.targetPlatform}
+                      onChange={(e) => handleChange("targetPlatform", e.target.value)}
+                      className={`form__input form__input--select ${errors.targetPlatform ? "input-error" : ""}`}
+                    >
+                      <option value="Instagram">Instagram</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="Twitter">Twitter</option>
+                      <option value="Facebook">Facebook</option>
+                    </select>
+                    {errors.targetPlatform && <span className="error-message">{errors.targetPlatform}</span>}
+                  </div>
+
+                  <div className="btn-container btn-container--center mt-1p5">
+                    <button
+                      onClick={previousPage}
+                      type="button"
+                      className="btn-cta btn-cta--medium btn-cta--secondary"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={nextPage}
+                      type="button"
+                      disabled={!formData.categories || formData.categories.length === 0}
+                      className="btn-cta btn-cta--medium"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Page 2: Payment Details */}
+              {currentPage === 2 && (
+                <div className="form-page">
+                  <h4 className="form__text form__text--subheader">Payment Details</h4>
+                  <div className="label-row-container__col">
+                    <label className="form__label">Budget (CAD)*</label>
+                    <input
+                      type="number"
+                      className={`form__input ${errors.budget ? "input-error" : ""}`}
+                      value={formData.budget}
+                      onChange={(e) => handleChange("budget", e.target.value)}
+                      min="0"
+                      step="0.01"
+                    />
+                    {errors.budget && <span className="error-message">{errors.budget}</span>}
+                  </div>
+
+                  <div className="btn-container btn-container--center mt-1p5">
+                    <button
+                      onClick={previousPage}
+                      type="button"
+                      className="btn-cta btn-cta--medium btn-cta--secondary"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={nextPage}
+                      type="button"
+                      disabled={!formData.budget || isNaN(formData.budget) || formData.budget <= 0}
+                      className="btn-cta btn-cta--medium"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Page 3: Attachment */}
+              {currentPage === 3 && (
+                <div className="form-page">
+                  <div className="label-row-container__col">
+                    <label className="form__label">Attachment (Optional)</label>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*,video/*"
+                      className={`form__input ${errors.attachment ? "input-error" : ""}`}
+                      onChange={(e) => handleFileChange("attachment", e.target.files[0])}
+                    />
+                    {formData.attachment && (
+                      <div className="file-preview">
+                        <p>Selected file: {formData.attachment.name}</p>
+                        <button 
+                          type="button" 
+                          className="btn-text"
+                          onClick={() => {
+                            handleChange("attachment", null);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                        >
+                          Remove File
+                        </button>
+                      </div>
+                    )}
+                    {errors.attachment && <span className="error-message">{errors.attachment}</span>}
+                  </div>
+
+                  <div className="btn-container btn-container--center mt-1p5">
+                    <button
+                      onClick={previousPage}
+                      type="button"
+                      className="btn-cta btn-cta--medium btn-cta--secondary"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={nextPage}
+                      type="button"
+                      className="btn-cta btn-cta--medium"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Page 4: Summary */}
+              {currentPage === 4 && (
+                <div className="form-page">
+                  <CreateBriefSummary
+                    title={formData.title}
+                    description={formData.description}
+                    categories={formData.categories}
+                    phrases={formData.phrases}
+                    tags={formData.tags}
+                    budget={formData.budget}
+                    targetPlatform={formData.targetPlatform}
+                    reviewDeadline={formData.reviewDeadline}
+                    deadline={formData.deadline}
+                    attachment={formData.attachment}
+                  />
+
+                  <div className="btn-container btn-container--center mt-1p5">
+                    <button
+                      onClick={previousPage}
+                      type="button"
+                      className="btn-cta btn-cta--medium btn-cta--secondary"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn-cta btn-cta--medium"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Creating..." : "Create Brief"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </form>
       </div>

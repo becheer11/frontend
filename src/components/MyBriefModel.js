@@ -86,11 +86,7 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
             )}
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-4">
-            <button onClick={() => {}} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow">
-              <FontAwesomeIcon icon={faPlus} className="mr-2" /> Create Campaign
-            </button>
-          </div>
+          
         </div>
       </div>
     </div>,
