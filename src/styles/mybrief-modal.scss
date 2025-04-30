@@ -1,6 +1,6 @@
 // Variables
-$primary-color: #4361ee;
-$secondary-color: #3f37c9;
+$primary-color: #ffc107;
+$secondary-color: #E2A852;
 $accent-color: #4cc9f0;
 $light-color: #f8f9fa;
 $dark-color: #212529;
@@ -250,61 +250,29 @@ $transition: all 0.3s ease;
   }
 }
 
-// Tags
-.brief-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.brief-tag {
-  background: #e0e8ff;
-  color: $primary-color;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-// Brief Actions
-.brief-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.action-card {
-  @include card-style;
-  
-  &--primary {
-    border-left: 4px solid $primary-color;
-  }
-  
-  &--success {
-    border-left: 4px solid $success-color;
-  }
-  
-  &__title {
-    font-size: 1.2rem;
-    margin-top: 0;
-    margin-bottom: 0.8rem;
-    color: $secondary-color;
-  }
-  
-  &__description {
-    color: #666;
-    line-height: 1.5;
+// Brief Campaigns
+.brief-campaigns {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
   }
   
-  &__btn {
+  &__title {
+    font-size: 1.5rem;
+    color: $primary-color;
+    margin: 0;
+  }
+  
+  &__create-btn {
     @include flex-center;
     gap: 0.5rem;
     background: $primary-color;
     color: white;
     border: none;
     border-radius: $border-radius;
-    padding: 0.8rem 1.5rem;
+    padding: 0.6rem 1.2rem;
     font-weight: 600;
     cursor: pointer;
     transition: $transition;
@@ -314,50 +282,202 @@ $transition: all 0.3s ease;
       transform: translateY(-2px);
     }
     
-    &--secondary {
-      background: white;
-      color: $primary-color;
-      border: 1px solid $primary-color;
-      
-      &:hover {
-        background: #f0f4ff;
-      }
-    }
-    
     .icon-btn {
       font-size: 0.9rem;
     }
+    
+    &--center {
+      margin: 2rem auto;
+      display: block;
+    }
+  }
+  
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  &__empty {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
   }
 }
 
-// Form Elements
-.form-group {
-  margin-bottom: 1.5rem;
+// Campaign Card
+.campaign-card {
+  @include card-style;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  &__creator {
+    @include flex-center;
+    gap: 0.8rem;
+  }
+  
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    
+    &--default {
+      @include flex-center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: $primary-color;
+      color: white;
+      font-weight: bold;
+    }
+  }
+  
+  &__username {
+    font-weight: 600;
+  }
+  
+  &__status {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-weight: 600;
+    
+    &--completed {
+      background: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+    
+    &--in-progress {
+      background: rgba($warning-color, 0.1);
+      color: $warning-color;
+    }
+    
+    &--pending {
+      background: rgba($accent-color, 0.1);
+      color: $accent-color;
+    }
+    
+    &--rejected {
+      background: rgba($danger-color, 0.1);
+      color: $danger-color;
+    }
+  }
+  
+  &__description {
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+  
+  &__media {
+    margin-bottom: 1rem;
+    border-radius: $border-radius;
+    overflow: hidden;
+    
+    &-image, &-video {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+    }
+  }
+  
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #eee;
+    padding-top: 0.8rem;
+  }
+  
+  &__stat {
+    @include flex-center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #666;
+    
+    .icon-stat {
+      font-size: 0.9rem;
+      color: $accent-color;
+    }
+  }
 }
 
-.form-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: $dark-color;
+// Analytics
+.brief-analytics {
+  &__title {
+    font-size: 1.5rem;
+    color: $primary-color;
+    margin-bottom: 1.5rem;
+  }
+  
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  &__subtitle {
+    font-size: 1.2rem;
+    color: $secondary-color;
+    margin-bottom: 1rem;
+  }
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
+.analytics-card {
+  @include card-style;
+  text-align: center;
+  
+  &--primary {
+    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+    color: white;
+    
+    .analytics-card__title, .analytics-card__value {
+      color: white;
+    }
+  }
+  
+  &__title {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  &__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $primary-color;
+    line-height: 1;
+  }
+}
+
+.chart-placeholder {
+  height: 200px;
+  background: #f5f7fa;
   border-radius: $border-radius;
-  font-size: 1rem;
-  transition: $transition;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.8rem;
   
-  &:focus {
-    border-color: $primary-color;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-  }
-  
-  &[type="textarea"] {
-    min-height: 120px;
+  .chart-bar {
+    height: 20px;
+    background: linear-gradient(90deg, $accent-color 0%, $primary-color 100%);
+    border-radius: 4px;
+    transition: width 1s ease;
   }
 }
 
@@ -394,5 +514,19 @@ $transition: all 0.3s ease;
   
   .brief-details__grid {
     grid-template-columns: 1fr;
+  }
+  
+  .brief-campaigns__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .brief-campaigns__create-btn {
+    width: 100%;
+  }
+  
+  .brief-analytics__grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

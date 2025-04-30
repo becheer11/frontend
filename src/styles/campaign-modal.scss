@@ -1,15 +1,12 @@
 // Variables
-$primary-color: #4361ee;
-$secondary-color: #3f37c9;
+$primary-color: #E2A852;
+$secondary-color: #ff4d4f;
 $accent-color: #4cc9f0;
 $light-color: #f8f9fa;
 $dark-color: #212529;
 $success-color: #4bb543;
-$warning-color: #ffc107;
-$danger-color: #dc3545;
 $border-radius: 12px;
 $box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-$transition: all 0.3s ease;
 
 // Mixins
 @mixin flex-center {
@@ -23,11 +20,16 @@ $transition: all 0.3s ease;
   border-radius: $border-radius;
   box-shadow: $box-shadow;
   padding: 1.5rem;
-  transition: $transition;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  }
 }
 
 // Modal Overlay
-.brief-modal-overlay {
+.campaign-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -39,7 +41,7 @@ $transition: all 0.3s ease;
 }
 
 // Modal Container
-.brief-modal {
+.campaign-modal {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: $dark-color;
   overflow: hidden;
@@ -71,7 +73,6 @@ $transition: all 0.3s ease;
     margin-top: 1rem;
     font-size: 0.9rem;
     opacity: 0.9;
-    flex-wrap: wrap;
   }
   
   &__status {
@@ -122,9 +123,7 @@ $transition: all 0.3s ease;
     font-weight: 600;
     color: #666;
     cursor: pointer;
-    transition: $transition;
-    @include flex-center;
-    gap: 0.5rem;
+    transition: all 0.3s ease;
     
     &.active {
       color: $primary-color;
@@ -134,10 +133,6 @@ $transition: all 0.3s ease;
     &:hover:not(.active) {
       color: $dark-color;
     }
-    
-    .icon-tab {
-      font-size: 0.9rem;
-    }
   }
   
   &__tab-content {
@@ -145,8 +140,8 @@ $transition: all 0.3s ease;
   }
 }
 
-// Brief Details
-.brief-details {
+// Campaign Details
+.campaign-details {
   &__section {
     margin-bottom: 2rem;
     
@@ -179,22 +174,11 @@ $transition: all 0.3s ease;
   &__card {
     @include card-style;
     
-    &--full {
-      grid-column: 1 / -1;
-    }
-    
     &-title {
-      @include flex-center;
-      gap: 0.6rem;
       font-size: 1.1rem;
       margin-top: 0;
       margin-bottom: 1rem;
       color: $secondary-color;
-      
-      .icon-card {
-        font-size: 0.9rem;
-        color: $accent-color;
-      }
     }
   }
   
@@ -211,53 +195,16 @@ $transition: all 0.3s ease;
       }
     }
   }
-  
-  &__stats {
-    display: flex;
-    gap: 1.5rem;
-  }
-  
-  &__stat {
-    text-align: center;
-    
-    &-value {
-      display: block;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: $primary-color;
-      line-height: 1;
-    }
-    
-    &-label {
-      display: block;
-      font-size: 0.8rem;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 0.3rem;
-    }
-  }
-  
-  &__media {
-    margin-top: 1rem;
-    
-    &-image, &-video {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      border-radius: $border-radius;
-    }
-  }
 }
 
 // Tags
-.brief-tags {
+.campaign-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.brief-tag {
+.campaign-tag {
   background: #e0e8ff;
   color: $primary-color;
   padding: 0.3rem 0.8rem;
@@ -266,104 +213,87 @@ $transition: all 0.3s ease;
   font-weight: 500;
 }
 
-// Brief Actions
-.brief-actions {
+// Stats
+.campaign-stats {
   display: flex;
-  flex-direction: column;
   gap: 1.5rem;
 }
 
-.action-card {
+.campaign-stat {
+  text-align: center;
+  
+  &__value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $primary-color;
+    line-height: 1;
+  }
+  
+  &__label {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.3rem;
+  }
+}
+
+// Media
+.campaign-media {
+  &__main {
+    @include card-style;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  
+  &__image, &__video {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: $border-radius;
+  }
+  
+  &__gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+}
+
+// Related Campaigns
+.related-campaigns {
+  &__title {
+    font-size: 1.3rem;
+    color: $primary-color;
+    margin-bottom: 1.5rem;
+  }
+  
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.related-campaign {
   @include card-style;
   
-  &--primary {
-    border-left: 4px solid $primary-color;
-  }
-  
-  &--success {
-    border-left: 4px solid $success-color;
-  }
-  
   &__title {
-    font-size: 1.2rem;
     margin-top: 0;
-    margin-bottom: 0.8rem;
     color: $secondary-color;
   }
   
   &__description {
     color: #666;
     line-height: 1.5;
-    margin-bottom: 1.5rem;
-  }
-  
-  &__btn {
-    @include flex-center;
-    gap: 0.5rem;
-    background: $primary-color;
-    color: white;
-    border: none;
-    border-radius: $border-radius;
-    padding: 0.8rem 1.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: $transition;
-    
-    &:hover {
-      background: $secondary-color;
-      transform: translateY(-2px);
-    }
-    
-    &--secondary {
-      background: white;
-      color: $primary-color;
-      border: 1px solid $primary-color;
-      
-      &:hover {
-        background: #f0f4ff;
-      }
-    }
-    
-    .icon-btn {
-      font-size: 0.9rem;
-    }
-  }
-}
-
-// Form Elements
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: $dark-color;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: $border-radius;
-  font-size: 1rem;
-  transition: $transition;
-  
-  &:focus {
-    border-color: $primary-color;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-  }
-  
-  &[type="textarea"] {
-    min-height: 120px;
   }
 }
 
 // Responsive Adjustments
 @media (max-width: 768px) {
-  .brief-modal {
+  .campaign-modal {
     width: 95vw;
     height: 90vh;
     
@@ -392,7 +322,11 @@ $transition: all 0.3s ease;
     }
   }
   
-  .brief-details__grid {
+  .campaign-details__grid {
     grid-template-columns: 1fr;
+  }
+  
+  .campaign-media__gallery {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

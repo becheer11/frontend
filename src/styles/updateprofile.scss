@@ -6,57 +6,6 @@
   justify-content: space-between;
   gap: 10rem;
   margin-top: 5rem;
-  .update-profile-container {
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .update-profile-container h2 {
-    text-align: center;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-  }
-  
-  .form-group input[type="file"] {
-    padding: 0;
-  }
-  
-  .image-preview {
-    margin-top: 10px;
-    max-width: 200px;
-    max-height: 200px;
-    object-fit: cover;
-  }
-  
-  .btn {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-  }
-  
-  .btn:hover {
-    background-color: #0056b3;
-  }
   
   &__container-left {
     display: flex;
@@ -90,19 +39,15 @@
     line-height: 72px;
   }
 
-  // I am an influencer/brand button
   &__btn {
     margin-top: 0;
     margin-bottom: 1.5rem;
     width: 10px;
-    // width: 17.875rem;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    // padding: 0.5rem 16rem;
     padding: 0.5rem 10rem;
-
     gap: 0.5rem;
     height: 2.625rem;
     background: #fcfcfc;
@@ -121,24 +66,20 @@
       }
     }
   }
-}
 
-.update-profile {
   &__two-col {
     display: flex;
   }
+  
   &__title {
     font-weight: bold;
   }
-  //   &__btn-login {
-  //   }
 
   &__btn-back {
     border: none;
     padding: 0;
     margin: 0;
     color: $text-dark-grey;
-    // display: block;
     align-items: left;
     max-width: 9rem;
     font-size: 0.85rem;
@@ -149,7 +90,6 @@
     color: $text-light-color;
     width: 70%;
     border-radius: 91px;
-    // margin: 1rem 0;
     margin-bottom: 1rem;
     padding: 0.5rem 3rem;
     font-size: $desktop-btn-regular;
@@ -168,6 +108,7 @@
       }
     }
   }
+  
   &__error {
     color: $error-color;
     padding: 0.5rem;
@@ -187,6 +128,7 @@
   padding-bottom: 0.5rem;
   font-size: 0.8rem;
   width: 500px;
+  
   &__media-kit {
     &--link {
       text-decoration: underline;
@@ -214,12 +156,15 @@
     color: #1f1f1f;
     margin-bottom: 0.1rem;
   }
+  
   &__input {
     font-size: 1rem;
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     border-radius: 12px;
+    border: 1px solid $form-border-color;
+    
     &--file {
       width: 200px;
       text-align: center;
@@ -236,37 +181,201 @@
     }
 
     &--invalid {
-      font-size: 1rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-      border-radius: 12px;
       border: 1px solid red;
     }
+    
     &--password {
       margin-bottom: 0.2rem;
     }
   }
 }
 
-.instructions > svg {
-  margin-right: 0.25rem;
+/* Modern Multi-Select Dropdown Styles */
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  
+  &.error {
+    .dropdown-header {
+      border-color: #ff4d4f;
+    }
+  }
+
+  .dropdown-header {
+    padding: 10px 15px;
+    border: 1px solid $form-border-color;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    transition: all 0.3s ease;
+    min-height: 44px;
+
+    &:hover {
+      border-color: #1890ff;
+    }
+
+    .placeholder {
+      color: #999;
+    }
+
+    .selected-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .selected-item {
+      background: #f0f2f5;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+
+      .remove-btn {
+        margin-left: 5px;
+        cursor: pointer;
+        color: #999;
+        font-size: 16px;
+        line-height: 1;
+
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+
+    .dropdown-arrow {
+      margin-left: 10px;
+      transition: transform 0.2s;
+    }
+  }
+
+  &.open {
+    .dropdown-header {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+
+      .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid $form-border-color;
+    border-radius: 12px;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 4px;
+  }
+
+  .dropdown-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &.selected {
+      background: #e6f7ff;
+      color: #1890ff;
+    }
+
+    .checkmark {
+      color: #1890ff;
+      font-weight: bold;
+    }
+  }
+}
+
+.keywords-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.keywords-item {
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  .keywords-delete {
+    cursor: pointer;
+    color: #999;
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+.tag-input-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.btn-add-tag {
+  padding: 8px 15px;
+  background-color: $text-dark-color;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: darken($text-dark-color, 10%);
+  }
+}
+
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn-container {
+  display: flex;
+  gap: 10px;
+  
+  &--center {
+    justify-content: center;
+  }
+  
+  &--col {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.btn-skip {
+  background: none;
+  border: none;
+  color: $text-dark-grey;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .hide {
   display: none;
-}
-
-.valid {
-  color: limegreen;
-  margin-left: 0.25rem;
-}
-
-.invalid {
-  color: $error-color;
-  margin-left: 0.25rem;
-}
-
-.dashboard-link {
-  text-decoration: none;
 }

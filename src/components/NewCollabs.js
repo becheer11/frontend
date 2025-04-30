@@ -36,7 +36,7 @@ const NewCollabs = () => {
 
     if (textQuery) {
       results = results.filter((brief) =>
-        [brief.title, brief.description, ...brief.categories, ...brief.tags]
+        [brief.title,  ...brief.categories, ...brief.tags]
           .join(" ")
           .toLowerCase()
           .includes(textQuery.toLowerCase())

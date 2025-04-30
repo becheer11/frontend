@@ -9,19 +9,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useAuth from "../hooks/useAuth";
 import AuthContext from "../context/AuthProvider";
 import projectCard from "../assets/project-card.png";
-import ProjectModal from "./ProjectModal";
 import NewCollabs from "./NewCollabs";
-import CreateProjectModal from "./CreateProjectModal";
 import CreateBriefModal from "./CreateBriefModal";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import "../styles/dashboard.scss";
-import Swal from "sweetalert2"; // Add this import
-
+import Swal from "sweetalert2";
 import colabFolder from "../assets/colab-logo.png";
 import colabTextTransparent from "../assets/colab-text-transparent.png";
 import axios from "../api/axios";
-import MyBriefModel from "./MyBriefModel"; // Import MyBriefModel
-import MyCampaignModal from "./CreateCampaignModal"; // Import MyBriefModel
+import MyBriefModel from "./MyBriefModel";
+import MyCampaignModal from "./MyCampaignModal";
 
 const BUTTON_WRAPPER_STYLES = {
   position: "relative",
@@ -35,7 +32,7 @@ const OVERLAY_STYLES = {
   right: 0,
   bottom: 0,
   backgroundColor: "rgba(0, 0, 0, .7)",
-  zIndex: 100,
+  zIndex: 1000,
 };
 
 const Dashboard = () => {
@@ -46,10 +43,8 @@ const Dashboard = () => {
   const [showNewCollabs, setShowNewCollabs] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [projectModal, setProjectModal] = useState({});
-  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [showCreateBriefModal, setShowCreateBriefModal] = useState(false);
 
-  // Define fetchData here
   const handleLogout = async () => {
     try {
       await axios.post("/api/auth/logout", {}, { withCredentials: true });
@@ -71,6 +66,7 @@ const Dashboard = () => {
       });
     }
   };
+
   const fetchData = async () => {
     try {
       const endpoint = auth.roles.includes("Influencer")
@@ -84,20 +80,8 @@ const Dashboard = () => {
       console.error("Failed to fetch data", error);
     }
   };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const endpoint = auth.roles.includes("Influencer")
-          ? "/api/my-campaigns"
-          : "/api/mybriefs";
-        const res = await axios.get(endpoint, {
-          withCredentials: true,
-        });
-        setItems(auth.roles.includes("Influencer") ? res.data.campaigns : res.data.briefs);
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-      }
-    };
     const fetchUser = async () => {
       try {
         const res = await axios.get("/api/user/getuser", {
@@ -116,9 +100,8 @@ const Dashboard = () => {
   const expandItem = (item) => {
     setProjectModal(item);
     setShowModal(true);
+    disableBodyScroll(document);
   };
-
-  showModal ? disableBodyScroll(document) : enableBodyScroll(document);
 
   return (
     <section className="dashboard">
@@ -176,9 +159,9 @@ const Dashboard = () => {
                       <span>{user.username}</span>
                     </div>
                     <div className="profile-avatar-info__categories">
-                      <span className="category">health</span>
-                      <span className="category">food</span>
-                      <span className="category">game</span>
+                      <span className="category">{user.categories[0]}</span>
+                      <span className="category">{user.categories[1] || ''}</span>
+                      <span className="category">{user.categories[2] || ''} </span>
                     </div>
                   </div>
                 </div>
@@ -237,9 +220,9 @@ const Dashboard = () => {
             </div>
             <div className="dashboard-header-right">
               <FontAwesomeIcon icon={faBell} className="icon-medium" />
-              <Link to="/login" className="link link--dark">
+              <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
                 <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
-              </Link>
+              </button>
               {user.avatar && (
                 <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
                   <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
@@ -279,9 +262,8 @@ const Dashboard = () => {
             <div className="dashboard-header-right">
               <FontAwesomeIcon icon={faBell} className="icon-medium" />
               <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
-  <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
-</button>
-
+                <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
+              </button>
               {user.avatar && (
                 <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
                   <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
@@ -310,14 +292,14 @@ const Dashboard = () => {
             </h2>
             <br />
             {items.map((item) => (
-              <button key={item._id} onClick={() => expandItem(item)} className="dashboard__btn">
+              <button 
+                key={item._id} 
+                onClick={() => expandItem(item)} 
+                className="dashboard__btn"
+              >
                 <div className="img-container">
                   <img
-                      src={   item.advertiserId?.userId.profilePhoto.url 
-                      ||
-                        
-                        projectCard}
-
+                    src={item.advertiserId?.userId.profilePhoto.url || projectCard}
                     alt="project"
                     className="project-container__img"
                   />
@@ -356,40 +338,34 @@ const Dashboard = () => {
           <NewCollabs />
         )}
 
-
-        <div style={BUTTON_WRAPPER_STYLES}>
         {showModal && (
-        auth.roles.includes("Influencer") ? (
-          <MyCampaignModal
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            campaign={projectModal}
-            user={user}
-            refreshDashboard={fetchData}
-          />
-        ) : (
-          <MyBriefModel
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            brief={projectModal}
-            role={auth.roles}
-            user={user}
-            refreshDashboard={fetchData}
-          />
-        )
-      )}
-          
-        </div>
-
-        {showCreateProjectModal && (
-          <CreateProjectModal
-            isOpen={showCreateProjectModal}
-            onClose={() => setShowCreateProjectModal(false)}
-            project={projectModal}
-            role={auth.roles}
-            brand={user?.firstName}
-            OVERLAY_STYLES={OVERLAY_STYLES}
-          />
+          <div style={BUTTON_WRAPPER_STYLES}>
+            {auth.roles.includes("Influencer") ? (
+              <MyCampaignModal
+                isOpen={showModal}
+                onClose={() => {
+                  setShowModal(false);
+                  enableBodyScroll(document);
+                }}
+                campaign={projectModal}
+                user={user}
+                refreshDashboard={fetchData}
+                OVERLAY_STYLES={OVERLAY_STYLES}
+              />
+            ) : (
+              <MyBriefModel
+                isOpen={showModal}
+                onClose={() => {
+                  setShowModal(false);
+                  enableBodyScroll(document);
+                }}
+                brief={projectModal}
+                role={auth.roles}
+                user={user}
+                refreshDashboard={fetchData}
+              />
+            )}
+          </div>
         )}
 
         {showCreateBriefModal && (
@@ -404,4 +380,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

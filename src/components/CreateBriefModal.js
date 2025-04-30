@@ -35,13 +35,109 @@ const INITIAL_FORM_STATE = {
   title: "",
   description: "",
   categories: [],
-  phrases: [],
   tags: [],
   budget: "",
   targetPlatform: "Instagram",
   reviewDeadline: "",
   deadline: "",
   attachment: null,
+};
+
+const AVAILABLE_CATEGORIES = [
+  "Photography",
+  "Videography",
+  "Graphic Design",
+  "Social Media",
+  "Content Writing",
+  "Web Development",
+  "Marketing",
+  "Branding",
+  "Animation",
+  "Illustration"
+];
+
+const MultiSelectDropdown = ({
+  options,
+  selected,
+  onChange,
+  placeholder = "Select options",
+  error
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeItem = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div 
+      className={`multi-select-dropdown ${isOpen ? "open" : ""} ${error ? "error" : ""}`}
+      ref={dropdownRef}
+    >
+      <div className="dropdown-header" onClick={toggleDropdown}>
+        {selected.length === 0 ? (
+          <span className="placeholder">{placeholder}</span>
+        ) : (
+          <div className="selected-items">
+            {selected.map(item => (
+              <span key={item} className="selected-item">
+                {item}
+                <span 
+                  className="remove-btn"
+                  onClick={(e) => removeItem(item, e)}
+                >
+                  ×
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="dropdown-arrow">▾</span>
+      </div>
+      
+      {isOpen && (
+        <div className="dropdown-options">
+          {options.map(option => (
+            <div
+              key={option}
+              className={`dropdown-option ${selected.includes(option) ? "selected" : ""}`}
+              onClick={() => handleSelect(option)}
+            >
+              {option}
+              {selected.includes(option) && (
+                <span className="checkmark">✓</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const CreateBriefModal = ({ isOpen, onClose }) => {
@@ -347,49 +443,14 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
 
                   <div className="label-row-container__col">
                     <label className="form__label">Categories*</label>
-                    <input
-                      onKeyDown={(e) => handleKeyDown(e, "categories")}
-                      type="text"
-                      className={`categories-input ${errors.categories ? "input-error" : ""}`}
-                      placeholder="Add a category"
+                    <MultiSelectDropdown
+                      options={AVAILABLE_CATEGORIES}
+                      selected={formData.categories}
+                      onChange={(selected) => handleChange("categories", selected)}
+                      placeholder="Select categories..."
+                      error={errors.categories}
                     />
-                    <div className="keywords-container">
-                      {formData.categories && formData.categories.map((cat, i) => (
-                        <div className="keywords-item" key={i}>
-                          <span className="keywords-text">{cat}</span>
-                          <span
-                            onClick={() => removeItem("categories", i)}
-                            className="keywords-delete"
-                          >
-                            &times;
-                          </span>
-                        </div>
-                      ))}
-                    </div>
                     {errors.categories && <span className="error-message">{errors.categories}</span>}
-                  </div>
-
-                  <div className="label-row-container__col">
-                    <label className="form__label">Phrases</label>
-                    <input
-                      onKeyDown={(e) => handleKeyDown(e, "phrases")}
-                      type="text"
-                      className="phrases-input"
-                      placeholder="Add a phrase"
-                    />
-                    <div className="keywords-container">
-                      {formData.phrases && formData.phrases.map((phrase, i) => (
-                        <div className="keywords-item" key={i}>
-                          <span className="keywords-text">{phrase}</span>
-                          <span
-                            onClick={() => removeItem("phrases", i)}
-                            className="phrases-delete"
-                          >
-                            &times;
-                          </span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
                   <div className="label-row-container__col">
@@ -546,7 +607,6 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     title={formData.title}
                     description={formData.description}
                     categories={formData.categories}
-                    phrases={formData.phrases}
                     tags={formData.tags}
                     budget={formData.budget}
                     targetPlatform={formData.targetPlatform}

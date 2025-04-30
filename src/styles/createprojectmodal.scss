@@ -22,6 +22,140 @@
   }
 }
 
+/* Modern Multi-Select Dropdown Styles */
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  
+  &.error {
+    .dropdown-header {
+      border-color: #ff4d4f;
+    }
+  }
+
+  .dropdown-header {
+    padding: 10px 15px;
+    border: 1px solid $form-border-color;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.03);
+
+    &:hover {
+      border-color: #1890ff;
+    }
+
+    .placeholder {
+      color: #999;
+    }
+
+    .selected-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .selected-item {
+      background: #f0f2f5;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+
+      .remove-btn {
+        margin-left: 5px;
+        cursor: pointer;
+        color: #999;
+        font-size: 16px;
+        line-height: 1;
+
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+
+    .dropdown-arrow {
+      margin-left: 10px;
+      transition: transform 0.2s;
+    }
+  }
+
+  &.open {
+    .dropdown-header {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+
+      .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid $form-border-color;
+    border-radius: 0.75rem;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 4px;
+  }
+
+  .dropdown-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &.selected {
+      background: #e6f7ff;
+      color: #1890ff;
+    }
+
+    .checkmark {
+      color: #1890ff;
+      font-weight: bold;
+    }
+  }
+}
+
+.keywords-item {
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  
+  .keywords-delete {
+    cursor: pointer;
+    color: #999;
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
 .create-project-close-project-btn {
   width: 100px;
 }

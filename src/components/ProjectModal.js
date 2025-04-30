@@ -1,28 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { faCheck, faPencil, faX, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faX, 
+  faCheck, 
+  faPencil, 
+  faPlus,
+  faCalendarAlt,
+  faDollarSign,
+  faHashtag,
+  faBullseye,
+  faFileAlt,
+  faChartLine
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
 import useAuth from "../hooks/useAuth";
 import AuthContext from "../context/AuthProvider";
 import axios from "../api/axios";
 import CreateCampaignModal from "./CreateCampaignModal";
-import holidayBackground from "../assets/holiday-background.png";
 import "../styles/projectmodal.scss";
-import "../styles/createprojectmodal.scss";
 
 const MODAL_STYLES = {
   position: "fixed",
   top: "50%",
-  right: "0%",
-  transform: "translate(0%, -50%)",
-  backgroundColor: "#fefcfb",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
   borderRadius: "24px",
-  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.2)",
-  width: "90vw",
-  maxWidth: "1200px",
-  height: "90vh",
-  overflow: "hidden", // Changed from scroll to hidden to contain inner scrolling
+  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+  width: "85vw",
+  maxWidth: "1100px",
+  height: "85vh",
+  overflow: "hidden",
   zIndex: 1000,
+  border: "1px solid rgba(255, 255, 255, 0.3)",
 };
 
 const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user, refreshDashboard }) => {
@@ -30,12 +40,14 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
   const [comment, setComment] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
   const { auth } = useAuth(AuthContext);
 
   useEffect(() => {
-    console.log("Brief Modal:", brief);
-    console.log("User Roles:", role);
-  }, [brief, role]);
+    if (brief) {
+      console.log("Brief Data:", brief);
+    }
+  }, [brief]);
 
   const handleSubmitReviewContract = async (action, e) => {
     e.preventDefault();
@@ -59,98 +71,210 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
   if (!isOpen || !brief) return null;
 
   return ReactDOM.createPortal(
-    <div style={OVERLAY_STYLES} className="modal-overlay">
-      <div style={MODAL_STYLES} className="project-modal">
-        <div className="stack">
-          <img src={holidayBackground} alt="" className="stack__under" />
-          <button onClick={onClose} className="btn-hide stack__over">
-            <FontAwesomeIcon icon={faX} className="icon-medium" />
-          </button>
-        </div>
-
-        {/* Scrollable content container */}
-        <div className="project-modal-container" style={{ height: "calc(100% - 60px)", overflowY: "auto" }}>
-          <div className="label-row-container">
-            <h1 className="project-modal__heading">{brief.title}</h1>
-            <p className="project-modal__text">${brief.budget}</p>
-          </div>
-          <h4 className="project-modal__subheading">{brief.company}</h4>
-
-          <div className="project-modal-content" style={{ padding: "0 20px" }}>
-            <div className="text-gray-800">
-              <h1 className="text-4xl font-bold mb-4">{brief.title}</h1>
-              <p className="text-lg mb-2"><strong>Description:</strong> {brief.description}</p>
-              <p className="text-sm mb-2"><strong>Platform:</strong> {brief.targetPlatform}</p>
-              <p className="text-sm mb-2"><strong>Tags:</strong> {brief.tags?.join(", ")}</p>
-              <p className="text-sm mb-2"><strong>Categories:</strong> {brief.categories?.join(", ")}</p>
-              <p className="text-sm mb-2"><strong>Budget:</strong> ${brief.budget}</p>
-              <p className="text-sm mb-6"><strong>Deadline:</strong> {new Date(brief.deadline).toLocaleDateString()}</p>
-
-              {brief.attachment?.url && (
-                <div className="mb-6">
-                  <p className="font-medium mb-2">Attachment:</p>
-                  {brief.attachment.resourceType === "image" ? (
-                    <img src={brief.attachment.url} alt="attachment" className="rounded-lg w-full max-h-80 object-contain shadow-md" />
+    <>
+      <div style={OVERLAY_STYLES} className="brief-modal-overlay">
+        <div style={MODAL_STYLES} className="brief-modal">
+          {/* Header Section */}
+          <div className="brief-modal__header">
+            <div className="brief-modal__header-content">
+              <h1 className="brief-modal__title">{brief.title}</h1>
+              <div className="brief-modal__meta">
+                <span className="brief-modal__status">
+                  {brief.validationStatus === "accepted" ? (
+                    <>
+                      <FontAwesomeIcon icon={faCheck} className="icon-status" />
+                      Accepted
+                    </>
                   ) : (
-                    <video controls src={brief.attachment.url} className="rounded-lg w-full max-h-80 object-contain shadow-md" />
+                    "Pending Approval"
+                  )}
+                </span>
+                <span className="brief-modal__date">
+                  <FontAwesomeIcon icon={faCalendarAlt} className="icon-meta" />
+                  Due: {new Date(brief.deadline).toLocaleDateString()}
+                </span>
+                <span className="brief-modal__budget">
+                  <FontAwesomeIcon icon={faDollarSign} className="icon-meta" />
+                  Budget: ${brief.budget}
+                </span>
+              </div>
+            </div>
+            <button onClick={onClose} className="brief-modal__close-btn">
+              <FontAwesomeIcon icon={faX} />
+            </button>
+          </div>
+
+          {/* Main Content */}
+          <div className="brief-modal__content">
+            {/* Navigation Tabs */}
+            <div className="brief-modal__tabs">
+              <button
+                className={`brief-modal__tab ${activeTab === "details" ? "active" : ""}`}
+                onClick={() => setActiveTab("details")}
+              >
+                <FontAwesomeIcon icon={faFileAlt} className="icon-tab" />
+                Brief Details
+              </button>
+              <button
+                className={`brief-modal__tab ${activeTab === "actions" ? "active" : ""}`}
+                onClick={() => setActiveTab("actions")}
+              >
+                <FontAwesomeIcon icon={faBullseye} className="icon-tab" />
+                Available Actions
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="brief-modal__tab-content">
+              {activeTab === "details" && (
+                <div className="brief-details">
+                  <div className="brief-details__section">
+                    <h2 className="brief-details__section-title">
+                      <FontAwesomeIcon icon={faHashtag} className="icon-section" />
+                      Campaign Brief
+                    </h2>
+                    <p className="brief-details__description">{brief.description}</p>
+                  </div>
+
+                  <div className="brief-details__grid">
+                    <div className="brief-details__card">
+                      <h3 className="brief-details__card-title">
+                        <FontAwesomeIcon icon={faBullseye} className="icon-card" />
+                        Requirements
+                      </h3>
+                      <div className="brief-tags">
+                        {brief.categories?.map((category, index) => (
+                          <span key={index} className="brief-tag">
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="brief-details__card">
+                      <h3 className="brief-details__card-title">
+                        <FontAwesomeIcon icon={faCheck} className="icon-card" />
+                        Deliverables
+                      </h3>
+                      <ul className="brief-details__list">
+                        <li className="brief-details__list-item">
+                          Platform: {brief.targetPlatform}
+                        </li>
+                        <li className="brief-details__list-item">
+                          Deadline: {new Date(brief.deadline).toLocaleDateString()}
+                        </li>
+                        <li className="brief-details__list-item">
+                          Revisions: {brief.numberOfRevisions || 1}
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="brief-details__card">
+                      <h3 className="brief-details__card-title">
+                        <FontAwesomeIcon icon={faDollarSign} className="icon-card" />
+                        Budget & Payment
+                      </h3>
+                      <div className="brief-stats">
+                        <div className="brief-stat">
+                          <span className="brief-stat__value">${brief.budget}</span>
+                          <span className="brief-stat__label">Total Budget</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {brief.attachment?.url && (
+                      <div className="brief-details__card brief-details__card--full">
+                        <h3 className="brief-details__card-title">Reference Materials</h3>
+                        <div className="brief-media">
+                          {brief.attachment.resourceType === "image" ? (
+                            <img 
+                              src={brief.attachment.url} 
+                              alt="Brief attachment" 
+                              className="brief-media__image" 
+                            />
+                          ) : (
+                            <video 
+                              controls 
+                              src={brief.attachment.url} 
+                              className="brief-media__video"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "actions" && (
+                <div className="brief-actions">
+                  {["no influencer assigned"].includes(brief.status) && !showAddComment && !showSuccess && (
+                    <div className="action-card action-card--primary">
+                      <h3 className="action-card__title">Accept This Brief</h3>
+                      <p className="action-card__description">
+                        By accepting this brief, you agree to the terms and will be able to create a campaign.
+                      </p>
+                      <button 
+                        onClick={(e) => handleSubmitReviewContract("accept", e)} 
+                        className="action-card__btn"
+                      >
+                        <FontAwesomeIcon icon={faCheck} className="icon-btn" />
+                        Accept Brief
+                      </button>
+                    </div>
+                  )}
+
+                  {showSuccess && (
+                    <div className="action-card action-card--success">
+                      <h3 className="action-card__title">Brief Accepted Successfully!</h3>
+                      <p className="action-card__description">
+                        You can now create a campaign for this brief. Click the button below to get started.
+                      </p>
+                      <button 
+                        onClick={() => setShowCreateCampaign(true)}
+                        className="action-card__btn"
+                      >
+                        <FontAwesomeIcon icon={faPlus} className="icon-btn" />
+                        Create Campaign
+                      </button>
+                    </div>
+                  )}
+
+                  {showAddComment && (
+                    <div className="action-card">
+                      <h3 className="action-card__title">Request Changes</h3>
+                      <form onSubmit={(e) => handleSubmitReviewContract("modify", e)}>
+                        <div className="form-group">
+                          <label htmlFor="comment" className="form-label">Comments</label>
+                          <textarea
+                            id="comment"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            className="form-input"
+                            rows="4"
+                            placeholder="Specify what changes you'd like to request..."
+                          />
+                        </div>
+                        <button type="submit" className="action-card__btn action-card__btn--secondary">
+                          <FontAwesomeIcon icon={faPencil} className="icon-btn" />
+                          Submit Changes Request
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {!showAddComment && !showSuccess && (
+                    <button 
+                      onClick={() => setShowAddComment(true)}
+                      className="action-card__btn action-card__btn--secondary"
+                    >
+                      <FontAwesomeIcon icon={faPencil} className="icon-btn" />
+                      Request Changes
+                    </button>
                   )}
                 </div>
               )}
             </div>
-
-            <div className="btn-container btn-container--center mt-4">
-              {["no influencer assigned"].includes(brief.status) && !showAddComment && !showSuccess && (
-                <>
-               
-                  <button 
-                    onClick={(e) => handleSubmitReviewContract("accept", e)} 
-                    className="btn-accept"
-                  >
-                    <FontAwesomeIcon icon={faCheck} className="icon-left" />
-                    Accept
-                  </button>
-                </>
-              )}
-
-              {showSuccess && (
-                <button 
-                  onClick={() => setShowCreateCampaign(true)}
-                  className="btn-accept bg-blue-600 hover:bg-blue-700"
-                >
-                  <FontAwesomeIcon icon={faPlus} className="icon-left" />
-                  Create Campaign
-                </button>
-              )}
-            </div>
-
-            {showAddComment && (
-              <form onSubmit={(e) => handleSubmitReviewContract("modify", e)} className="mt-6">
-                <div className="label-col-container">
-                  <label htmlFor="comments" className="form__label">Request Changes</label>
-                  <input
-                    type="text"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="form__input"
-                  />
-                </div>
-                <div className="btn-container btn-container--center">
-                  <button 
-                    type="submit" 
-                    className="btn-accept"
-                  >
-                    <FontAwesomeIcon icon={faPencil} className="icon-left icon-small" />
-                    Submit
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {showSuccess && !showCreateCampaign && (
-              <div className="mt-6 text-green-600 font-medium text-center">
-                ✅ Brief has been accepted successfully. Click "Create Campaign" to proceed.
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -158,10 +282,13 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
       <CreateCampaignModal
         isOpen={showCreateCampaign}
         onClose={() => setShowCreateCampaign(false)}
-        OVERLAY_STYLES={OVERLAY_STYLES}
-        brief={brief}
+        briefId={brief._id}
+        refreshDashboard={() => {
+          refreshDashboard();
+          setShowCreateCampaign(false);
+        }}
       />
-    </div>,
+    </>,
     document.getElementById("portal")
   );
 };

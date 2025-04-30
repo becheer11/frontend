@@ -9,6 +9,103 @@ import greyCircle from '../assets/greycircle.jpg';
 import Links from './Links';
 import '../styles/updateprofile.scss';
 
+const AVAILABLE_CATEGORIES = [
+  "Photography",
+  "Videography",
+  "Graphic Design",
+  "Social Media",
+  "Content Writing",
+  "Web Development",
+  "Marketing",
+  "Branding",
+  "Animation",
+  "Illustration"
+];
+
+const MultiSelectDropdown = ({
+  options,
+  selected,
+  onChange,
+  placeholder = "Select options",
+  error
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (option) => {
+    if (selected.includes(option)) {
+      onChange(selected.filter(item => item !== option));
+    } else {
+      onChange([...selected, option]);
+    }
+  };
+
+  const removeItem = (option, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== option));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div 
+      className={`multi-select-dropdown ${isOpen ? "open" : ""} ${error ? "error" : ""}`}
+      ref={dropdownRef}
+    >
+      <div className="dropdown-header" onClick={toggleDropdown}>
+        {selected.length === 0 ? (
+          <span className="placeholder">{placeholder}</span>
+        ) : (
+          <div className="selected-items">
+            {selected.map(item => (
+              <span key={item} className="selected-item">
+                {item}
+                <span 
+                  className="remove-btn"
+                  onClick={(e) => removeItem(item, e)}
+                >
+                  ×
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="dropdown-arrow">▾</span>
+      </div>
+      
+      {isOpen && (
+        <div className="dropdown-options">
+          {options.map(option => (
+            <div
+              key={option}
+              className={`dropdown-option ${selected.includes(option) ? "selected" : ""}`}
+              onClick={() => handleSelect(option)}
+            >
+              {option}
+              {selected.includes(option) && (
+                <span className="checkmark">✓</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const UpdateProfile = () => {
   const { auth } = useAuth(AuthContext);
   const navigate = useNavigate();
@@ -43,7 +140,6 @@ const UpdateProfile = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [errMsg, setErrMsg] = useState('');
   const [newTag, setNewTag] = useState('');
-  const [newCategory, setNewCategory] = useState('');
 
   useEffect(() => {
     // Fetch the user profile on page load
@@ -91,26 +187,23 @@ const UpdateProfile = () => {
     }
   };
 
-  const addTag = () => {
-    if (newTag.trim()) {
+  
+const handleTagChange = (e) => {
+  const value = e.target.value;
+  if (value.includes(',')) {
+    const newTags = value.split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag !== '');
+    
+    if (newTags.length > 0) {
       setUserData(prev => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, ...newTags]
       }));
       setNewTag('');
     }
-  };
-
-  const addCategory = () => {
-    if (newCategory.trim()) {
-      setUserData(prev => ({
-        ...prev,
-        categories: [...prev.categories, newCategory.trim()]
-      }));
-      setNewCategory('');
-    }
-  };
-
+  }
+};
   const removeTag = (index) => {
     setUserData(prev => ({
       ...prev,
@@ -118,30 +211,30 @@ const UpdateProfile = () => {
     }));
   };
 
-  const removeCategory = (index) => {
-    setUserData(prev => ({
-      ...prev,
-      categories: prev.categories.filter((_, i) => i !== index)
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    
-    // Append all fields to formData
+    if (newTag.trim()) {
+      setUserData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+    // Append all fields to formData correctly
     Object.keys(userData).forEach(key => {
       if (key === 'tags' || key === 'categories') {
-        formData.append(key, JSON.stringify(userData[key]));
+        // Ensure these are sent as proper arrays
+        userData[key].forEach(item => formData.append(`${key}[]`, item));
       } else if (key !== 'profilePhoto') {
         formData.append(key, userData[key]);
       }
     });
-
+  
     if (selectedFile) {
       formData.append('profilePhoto', selectedFile);
     }
-
+  
     try {
       const response = await axios.put('/api/user/updateProfile', formData, {
         headers: {
@@ -152,7 +245,7 @@ const UpdateProfile = () => {
       
       if (response.data.success) {
         setSuccessMsg('Profile updated successfully!');
-        if (auth.roles.includes(3000)) { // Brand role
+        if (auth.roles.includes('brand')) {
           navigate('/dashboard');
         } else {
           showPageOne(false);
@@ -164,6 +257,7 @@ const UpdateProfile = () => {
       setErrMsg('Failed to update profile. Please try again.');
     }
   };
+   
 
   const handlePhotoSubmit = async (e) => {
     e.preventDefault();
@@ -269,78 +363,60 @@ const UpdateProfile = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="tags" className="update-profile-form__label">
-                      Tags
-                    </label>
-                    <div className="tag-input-container">
-                      <input
-                        type="text"
-                        id="tags"
-                        value={newTag}
-                        onChange={(e) => setNewTag(e.target.value)}
-                        placeholder="Enter tag"
-                        className="update-profile-form__input"
-                      />
-                      <button 
-                        type="button" 
-                        onClick={addTag}
-                        className="btn-add-tag"
-                      >
-                        Add Tag
-                      </button>
-                    </div>
-                    <div className="keywords-container">
-                      {userData.tags.map((tag, index) => (
-                        <div className="keywords-item" key={index}>
-                          <span className="keywords-text">{tag}</span>
-                          <span
-                            onClick={() => removeTag(index)}
-                            className="keywords-delete"
-                          >
-                            &times;
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+  <label htmlFor="tags" className="update-profile-form__label">
+    Tags (comma separated)
+  </label>
+  <input
+    type="text"
+    id="tags"
+    value={newTag}
+    onChange={(e) => setNewTag(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (newTag.trim()) {
+          setUserData(prev => ({
+            ...prev,
+            tags: [...prev.tags, newTag.trim()]
+          }));
+          setNewTag('');
+        }
+      }
+    }}
+    placeholder="Enter tags separated by commas"
+    className="update-profile-form__input"
+  />
+  <div className="keywords-container">
+    {userData.tags.map((tag, index) => (
+      <div className="keywords-item" key={index}>
+        <span className="keywords-text">{tag}</span>
+        <span
+          onClick={() => removeTag(index)}
+          className="keywords-delete"
+        >
+          &times;
+        </span>
+      </div>
+    ))}
+  </div>
+</div>
 
                   <div className="form-group">
                     <label htmlFor="categories" className="update-profile-form__label">
                       Categories
                     </label>
-                    <div className="tag-input-container">
-                      <input
-                        type="text"
-                        id="categories"
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value)}
-                        placeholder="Enter category"
-                        className="update-profile-form__input"
-                      />
-                      <button 
-                        type="button" 
-                        onClick={addCategory}
-                        className="btn-add-tag"
-                      >
-                        Add Category
-                      </button>
-                    </div>
-                    <div className="keywords-container">
-                      {userData.categories.map((category, index) => (
-                        <div className="keywords-item" key={index}>
-                          <span className="keywords-text">{category}</span>
-                          <span
-                            onClick={() => removeCategory(index)}
-                            className="keywords-delete"
-                          >
-                            &times;
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                    <MultiSelectDropdown
+                      options={AVAILABLE_CATEGORIES}
+                      selected={userData.categories}
+                      onChange={(selected) => setUserData(prev => ({
+                        ...prev,
+                        categories: selected
+                      }))}
+                      placeholder="Select categories..."
+                    />
                   </div>
 
-                  {auth.roles.includes(2000) && (
+                  {auth.roles.includes('Influancer') && (
                     <>
                       <div className="form-group">
                         <label htmlFor="instaUsername" className="update-profile-form__label">
@@ -400,7 +476,7 @@ const UpdateProfile = () => {
                     </>
                   )}
 
-                  {auth.roles.includes(3000) && (
+                  {auth.roles.includes('Brand') && (
                     <>
                       <div className="form-group">
                         <label htmlFor="companyName" className="update-profile-form__label">
@@ -529,8 +605,6 @@ const UpdateProfile = () => {
               </>
             )}
           </div>
-
-        
         </section>
       </div>
     </main>
