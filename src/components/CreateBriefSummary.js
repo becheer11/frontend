@@ -39,7 +39,6 @@ const CreateBriefSummary = ({
           <div className="preview-col">
             <div className="preview-row">
               <h5 className="form__label">Brief Overview</h5>
-              <FontAwesomeIcon icon={faPencil} className="form__label" />
             </div>
             <table className="preview-table">
               <tbody className="preview-table__tbody">
@@ -81,7 +80,6 @@ const CreateBriefSummary = ({
           <div className="preview-col">
             <div className="preview-row">
               <h5 className="form__label">Categories & Tags</h5>
-              <FontAwesomeIcon icon={faPencil} className="form__label" />
             </div>
             <table className="preview-table">
               <tbody className="preview-table__tbody">
@@ -119,7 +117,6 @@ const CreateBriefSummary = ({
           <div className="preview-col">
             <div className="preview-row">
               <h5 className="form__label">Platform & Budget</h5>
-              <FontAwesomeIcon icon={faPencil} className="form__label" />
             </div>
             <table className="preview-table">
               <tbody className="preview-table__tbody">
@@ -136,7 +133,7 @@ const CreateBriefSummary = ({
                 <tr className="preview-table__tr">
                   <th className="preview-table__th">Budget</th>
                   <td className="preview-table__td">
-                    ${budget} CAD
+                    {budget} Dt
                   </td>
                 </tr>
               </tbody>
@@ -145,7 +142,6 @@ const CreateBriefSummary = ({
             <div className="preview-col">
                       <div className="preview-row">
                         <h5 className="form__label">Contract</h5>
-                        <FontAwesomeIcon icon={faPencil} className="form__label" />
                       </div>
                       <table className="preview-table">
                         <tbody className="preview-table__tbody">
@@ -189,7 +185,6 @@ const CreateBriefSummary = ({
           <div className="preview-col">
             <div className="preview-row">
               <h5 className="form__label">Attachment</h5>
-              <FontAwesomeIcon icon={faPencil} className="form__label" />
             </div>
             <table className="preview-table">
               <tbody className="preview-table__tbody">

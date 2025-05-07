@@ -18,6 +18,7 @@ import AuthContext from "../context/AuthProvider";
 import axios from "../api/axios";
 import CreateCampaignModal from "./CreateCampaignModal";
 import "../styles/projectmodal.scss";
+const moment = require("moment");
 
 const MODAL_STYLES = {
   position: "fixed",
@@ -30,7 +31,8 @@ const MODAL_STYLES = {
   width: "85vw",
   maxWidth: "1100px",
   height: "85vh",
-  overflow: "hidden",
+  overflowY: "auto",
+  padding: "0",
   zIndex: 1000,
   border: "1px solid rgba(255, 255, 255, 0.3)",
 };
@@ -140,7 +142,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                     <div className="brief-details__card">
                       <h3 className="brief-details__card-title">
                         <FontAwesomeIcon icon={faBullseye} className="icon-card" />
-                        Requirements
+                        Categories
                       </h3>
                       <div className="brief-tags">
                         {brief.categories?.map((category, index) => (
@@ -207,8 +209,51 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
               )}
 
               {activeTab === "actions" && (
+                
                 <div className="brief-actions">
-                  {["no influencer assigned"].includes(brief.status) && !showAddComment && !showSuccess && (
+                   <div className="preview-col">
+                                        <div className="preview-row">
+                                          <h5 className="form__label">Contract</h5>
+                                        </div>
+                                        <table className="preview-table">
+                                          <tbody className="preview-table__tbody">
+                                            <tr className="preview-table__tr">
+                                              <td className="preview-table__td preview-table__td--contract">
+                                                <p>
+                                                  The creator will provide the following in accordance to
+                                                  the content guidelines:
+                                                </p>
+                                                <br />
+                                                <p>
+                                                  The creator must upload all content on CoLab by{" "}
+                                                  {moment(brief.reviewDeadline).format("MMMM Do YYYY, h:mm:ss a")}{" "}
+                                                  for review by the brand. All content
+                                                  must be uploaded by{" "}
+                                                  {moment(brief.deadline).format("MMMM Do YYYY, h:mm:ss a")} after
+                                                  the Creator receives approval from the brand.
+                                                </p>
+                                                <br />
+                            
+                                                <p>
+                                                  The Creator grants the Brand a worldwide, irrevocable,
+                                                  royalty-free, fully paid-up, transferrable,
+                                                  sub-licensable, and perpetual right and license to
+                                                  reproduce, publish, distribute, display, repost, share and
+                                                  edit all Creator created for or on behalf of the Brand in
+                                                  any and all media now known or developed in the future.
+                                                </p>
+                                                <br />
+                                                <p>
+                                                  {" "}
+                                                  The Creator accepts the terms of the foregoing proposal
+                                                  and agree to the Privacy Policy and Terms & Conditions.
+                                                </p>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                  { !showAddComment && !showSuccess && (
                     <div className="action-card action-card--primary">
                       <h3 className="action-card__title">Accept This Brief</h3>
                       <p className="action-card__description">
@@ -230,15 +275,25 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                       <p className="action-card__description">
                         You can now create a campaign for this brief. Click the button below to get started.
                       </p>
-                      <button 
-                        onClick={() => setShowCreateCampaign(true)}
-                        className="action-card__btn"
-                      >
-                        <FontAwesomeIcon icon={faPlus} className="icon-btn" />
-                        Create Campaign
-                      </button>
-                    </div>
+                      {showSuccess && (
+                <button 
+                onClick={() => {
+                  onClose(); // Close the current modal
+
+                  setTimeout(() => {
+                    setShowCreateCampaign(true); // Open campaign modal after a small delay
+                  }, 100);                }}
+
+                  className="btn-accept bg-blue-600 hover:bg-blue-700"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="icon-left" />
+                  Create Campaign
+                </button>
+              )}
+            </div>
+
                   )}
+               
 
                   {showAddComment && (
                     <div className="action-card">
@@ -280,14 +335,13 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
       </div>
 
       <CreateCampaignModal
-        isOpen={showCreateCampaign}
-        onClose={() => setShowCreateCampaign(false)}
-        briefId={brief._id}
-        refreshDashboard={() => {
-          refreshDashboard();
-          setShowCreateCampaign(false);
-        }}
-      />
+  isOpen={showCreateCampaign}
+  onClose={() => setShowCreateCampaign(false)}
+  brief={brief}  // Make sure you're passing the brief prop
+  OVERLAY_STYLES={OVERLAY_STYLES}  // Add this line
+  refreshDashboard={refreshDashboard}
+/>
+
     </>,
     document.getElementById("portal")
   );

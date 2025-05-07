@@ -1,0 +1,86 @@
+.create-project-modal {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #212529;
+  
+    .form {
+      &__text {
+        &--header {
+          font-size: 1.5rem;
+          margin-bottom: 1.5rem;
+          color: #4361ee;
+        }
+      }
+  
+      &__label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+  
+      &__input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+  
+        &--textarea {
+          min-height: 120px;
+          resize: vertical;
+        }
+      }
+    }
+  
+    .btn-container {
+      &--right {
+        display: flex;
+        justify-content: flex-end;
+      }
+  
+      &--center {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  
+    .btn-hide {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.2s;
+  
+      &:hover {
+        color: #333;
+      }
+    }
+  
+    .btn-cta {
+      background: #4361ee;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+  
+      &:hover {
+        background: #3a56d4;
+      }
+  
+      &--medium {
+        font-size: 1rem;
+      }
+  
+      &--active {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .mt-1p5 {
+    margin-top: 1.5rem;
+  }

@@ -15,6 +15,7 @@ import EmailVerificationPage from "./components/EmailVerificationPage";
 import ResetPassword from "./components/ResetPasswordPage";
 import ForgotPassword from "./components/ForgetPasswordPage";
 import Home from "components/Home";
+import AdminDashboard from "components/admin/AdminDashboard";
 
 const ROLES = {
   Admin: "Admin",
@@ -42,6 +43,10 @@ const App = () => {
         <Route path="changepassword" element={<ChangePassword />} />
         <Route path="updateprofile" element={<UpdateProfile />} />
         <Route path="dashboard" element={<Dashboard />} />
+      </Route>
+      <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+       
+        <Route path="admin-dashboard" element={<AdminDashboard />} />
       </Route>
 
       {/* Unauthorized Route */}

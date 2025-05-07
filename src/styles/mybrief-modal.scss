@@ -1,6 +1,5 @@
-// Variables
-$primary-color: #ffc107;
-$secondary-color: #E2A852;
+$primary-color: #D45742;
+$secondary-color: #D45742;
 $accent-color: #4cc9f0;
 $light-color: #f8f9fa;
 $dark-color: #212529;
@@ -10,7 +9,6 @@ $danger-color: #dc3545;
 $border-radius: 12px;
 $box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 $transition: all 0.3s ease;
-
 // Mixins
 @mixin flex-center {
   display: flex;
@@ -37,7 +35,49 @@ $transition: all 0.3s ease;
   z-index: 1000;
   backdrop-filter: blur(5px);
 }
+.brief-modal {
+  &__header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
 
+  &__action-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    
+    &--edit {
+      background-color: #f0f7ff;
+      color: #1a73e8;
+      border: 1px solid #d2e3fc;
+      
+      &:hover {
+        background-color: #e1f0ff;
+      }
+    }
+    
+    &--delete {
+      background-color: #fff0f0;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
+      
+      &:hover {
+        background-color: #ffe0e0;
+      }
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
 // Modal Container
 .brief-modal {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

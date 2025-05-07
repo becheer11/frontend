@@ -9,12 +9,7 @@ export const validateBrief = (formData) => {
     }
     
     // Description validation
-    if (!formData.description.trim()) {
-      errors.description = "Description is required";
-    } else if (formData.description.length > 1000) {
-      errors.description = "Description must be less than 1000 characters";
-    }
-    
+   
     // Categories validation
     if (formData.categories.length === 0) {
       errors.categories = "At least one category is required";

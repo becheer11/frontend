@@ -1,26 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "../api/axios";
-import "../styles/register.scss";
+import "../styles/EmailVerification.scss";
 
 const EmailVerification = () => {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const inputsRef = useRef([]);
+
+  const handleChange = (element, index) => {
+    const newCode = [...code];
+    newCode[index] = element.value;
+    setCode(newCode);
+
+    if (element.value && index < 5) {
+      inputsRef.current[index + 1].focus();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!code) {
+    const fullCode = code.join("");
+
+    if (fullCode.length < 6) {
       return Swal.fire({
         icon: "error",
-        title: "Missing Code",
-        text: "Please enter the verification code sent to your email.",
+        title: "Incomplete Code",
+        text: "Please enter all 6 digits of the verification code.",
       });
     }
+
     try {
       setLoading(true);
-      const response = await axios.post("/api/auth/verify-email", { code });
+      await axios.post("/api/auth/verify-email", { code: fullCode });
 
       Swal.fire({
         icon: "success",
@@ -49,19 +63,20 @@ const EmailVerification = () => {
           Please enter the 6-digit code that was sent to your email.
         </p>
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="verificationCode" className="login-form__label">
-            Verification Code
-          </label>
-          <input
-            type="text"
-            id="verificationCode"
-            maxLength="6"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-            placeholder="Enter your code"
-            className="login-form__input"
-          />
+          <div className="otp-container">
+            {code.map((digit, index) => (
+              <input
+                key={index}
+                type="text"
+                maxLength="1"
+                value={digit}
+                onChange={(e) => handleChange(e.target, index)}
+                ref={(el) => (inputsRef.current[index] = el)}
+                className="otp-input"
+                required
+              />
+            ))}
+          </div>
 
           <div className="flex-col-center mt-4">
             <button
@@ -72,9 +87,8 @@ const EmailVerification = () => {
               {loading ? "Verifying..." : "Verify Email"}
             </button>
             <button
-              onClick={() => {
-                navigate("/login");
-              }}
+              type="button"
+              onClick={() => navigate("/login")}
               className="login__btn-cta"
             >
               Sign In

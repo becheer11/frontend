@@ -3,3 +3,33 @@
 @forward "./fonts";
 @forward "./spacing";
 @forward "./sizing";
+// ======================
+// VARIABLES DEFINITION
+// ======================
+
+// Breakpoints
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
+
+// Colors
+$background-light-color: #f8f9fa;
+$background-dark-color: #212529;
+$background-accessibility-grey: #e9ecef;
+$text-dark-color: #212529;
+$text-light-color: #f8f9fa;
+$text-dark-grey: #495057;
+$primary-color: #4361ee;
+$warning-color: #ff9800;
+$success-color: #4caf50;
+$form-border-color: #ced4da;
+$btn-grey-color: #6c757d;
+$light-color: #f8f9fa;
+$dark-color: #212529;
+$text-dark:#212529;
+$border-light:#f8f9fa;
+// Font Sizes
+$desktop-btn-regular: 1rem;

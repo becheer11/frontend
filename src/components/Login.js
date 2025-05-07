@@ -62,7 +62,11 @@ const Login = () => {
         }).then(() => {
           setEmail("");
           setPassword("");
-          navigate(from);
+          if (userData.roles.includes("Admin")) {
+            navigate("/admin-dashboard");
+          } else {
+            navigate(from);
+          }
         });
       } else {
         Swal.fire({

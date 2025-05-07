@@ -6,9 +6,6 @@ import useAuth from "../hooks/useAuth";
 import axios from "../api/axios";
 import AuthContext from "../context/AuthProvider";
 import "../styles/createprojectmodal.scss";
-import "../styles/dashboard.scss";
-import { validateBrief, validateFile } from "../validators/briefValidator";
-import { useForm } from "../hooks/useForm";
 import { toast } from "react-toastify";
 import CreateBriefSummary from "./CreateBriefSummary";
 
@@ -29,18 +26,6 @@ const OVERLAY_STYLES = {
   bottom: 0,
   backgroundColor: "rgba(0, 0, 0, 0.7)",
   zIndex: 1000,
-};
-
-const INITIAL_FORM_STATE = {
-  title: "",
-  description: "",
-  categories: [],
-  tags: [],
-  budget: "",
-  targetPlatform: "Instagram",
-  reviewDeadline: "",
-  deadline: "",
-  attachment: null,
 };
 
 const AVAILABLE_CATEGORIES = [
@@ -140,7 +125,7 @@ const MultiSelectDropdown = ({
   );
 };
 
-const CreateBriefModal = ({ isOpen, onClose }) => {
+const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
   const { auth } = useAuth(AuthContext);
   const fileInputRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -149,24 +134,50 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   
-  const {
-    formData,
-    setFormData,
-    handleChange,
-    handleArrayChange,
-    handleFileChange,
-    resetForm
-  } = useForm(INITIAL_FORM_STATE);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    categories: [],
+    tags: [],
+    budget: "",
+    targetPlatform: "Instagram",
+    reviewDeadline: "",
+    deadline: "",
+    attachment: null,
+    existingAttachment: null
+  });
 
   useEffect(() => {
-    if (!isOpen) {
-      resetForm();
-      setErrors({});
-      setCurrentPage(0);
-      setServerError(null);
-      setShowSuccess(false);
+    if (brief) {
+      setFormData({
+        title: brief.title || "",
+        description: brief.description || "",
+        categories: brief.categories || [],
+        tags: brief.tags || [],
+        budget: brief.budget || "",
+        targetPlatform: brief.targetPlatform || "Instagram",
+        reviewDeadline: brief.reviewDeadline ? new Date(brief.reviewDeadline).toISOString().split('T')[0] : "",
+        deadline: brief.deadline ? new Date(brief.deadline).toISOString().split('T')[0] : "",
+        attachment: null,
+        existingAttachment: brief.attachment || null
+      });
     }
-  }, [isOpen, resetForm]);
+  }, [brief]);
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleFileChange = (field, file) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: file,
+      existingAttachment: file ? null : prev.existingAttachment
+    }));
+  };
 
   const handleKeyDown = (e, field) => {
     if (e.key !== "Enter") return;
@@ -174,16 +185,6 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
     
     const value = e.target.value.trim();
     if (!value) return;
-
-    if (formData[field] === undefined) {
-      toast.error(`Field ${field} is not defined in form data`);
-      return;
-    }
-
-    if (!Array.isArray(formData[field])) {
-      toast.error(`Field ${field} is not an array`);
-      return;
-    }
 
     if (!formData[field].includes(value)) {
       handleChange(field, [...formData[field], value]);
@@ -195,16 +196,6 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
   };
 
   const removeItem = (field, index) => {
-    if (formData[field] === undefined) {
-      toast.error(`Field ${field} is not defined in form data`);
-      return;
-    }
-
-    if (!Array.isArray(formData[field])) {
-      toast.error(`Field ${field} is not an array`);
-      return;
-    }
-
     const newArray = formData[field].filter((_, i) => i !== index);
     handleChange(field, newArray);
   };
@@ -263,14 +254,6 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
           newErrors.budget = "Budget must be a positive number";
         }
         return newErrors;
-      },
-      3: () => {
-        const newErrors = {};
-        if (formData.attachment) {
-          const fileError = validateFile(formData.attachment);
-          if (fileError) newErrors.attachment = fileError;
-        }
-        return newErrors;
       }
     };
 
@@ -282,7 +265,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     setServerError(null);
 
-    const validationErrors = validateBrief(formData);
+    const validationErrors = validateCurrentPage();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setIsSubmitting(false);
@@ -292,9 +275,13 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
 
     try {
       const formDataToSend = new FormData();
+      
+      // Append all fields except existingAttachment
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "attachment" && value) {
           formDataToSend.append(key, value);
+        } else if (key === "existingAttachment") {
+          // Skip - this is just for UI
         } else if (Array.isArray(value)) {
           value.forEach(item => formDataToSend.append(`${key}[]`, item));
         } else {
@@ -302,7 +289,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
         }
       });
 
-      const response = await axios.post("/api/brief", formDataToSend, {
+      const response = await axios.put(`/api/brief/${brief._id}`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${auth?.accessToken}`,
@@ -310,18 +297,18 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
         withCredentials: true,
       });
 
-      if (response.status === 201) {
-        toast.success("Brief created successfully!");
+      if (response.status === 200) {
+        toast.success("Brief updated successfully!");
         setShowSuccess(true);
         setTimeout(() => {
           onClose();
-          resetForm();
+          refreshBrief();
         }, 1500);
       }
     } catch (err) {
-      console.error("Error creating brief:", err);
+      console.error("Error updating brief:", err);
       const errorMessage = err.response?.data?.message || 
-        "Failed to create brief. Please try again later.";
+        "Failed to update brief. Please try again later.";
       setServerError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -347,7 +334,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
         
         <form className="form" onSubmit={handleSubmit}>
           <h2 className="form__text form__text--header">
-            {showSuccess ? "Brief Created Successfully!" : "Create a Brief"}
+            {showSuccess ? "Brief Updated Successfully!" : "Update Brief"}
           </h2>
 
           {serverError && (
@@ -358,7 +345,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
 
           {showSuccess ? (
             <div className="form-success">
-              <p>Your brief has been successfully created!</p>
+              <p>Your brief has been successfully updated!</p>
             </div>
           ) : (
             <>
@@ -531,31 +518,8 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     {errors.budget && <span className="error-message">{errors.budget}</span>}
                   </div>
 
-                  <div className="btn-container btn-container--center mt-1p5">
-                    <button
-                      onClick={previousPage}
-                      type="button"
-                      className="btn-cta btn-cta--medium btn-cta--secondary"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={nextPage}
-                      type="button"
-                      disabled={!formData.budget || isNaN(formData.budget) || formData.budget <= 0}
-                      className="btn-cta btn-cta--medium"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Page 3: Attachment */}
-              {currentPage === 3 && (
-                <div className="form-page">
                   <div className="label-row-container__col">
-                    <label className="form__label">Attachment (Optional)</label>
+                    <label className="form__label">Attachment</label>
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -563,14 +527,29 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                       className={`form__input ${errors.attachment ? "input-error" : ""}`}
                       onChange={(e) => handleFileChange("attachment", e.target.files[0])}
                     />
-                    {formData.attachment && (
+                    {formData.existingAttachment && !formData.attachment && (
                       <div className="file-preview">
-                        <p>Selected file: {formData.attachment.name}</p>
+                        <p>Current file: {formData.existingAttachment.url}</p>
                         <button 
                           type="button" 
                           className="btn-text"
                           onClick={() => {
-                            handleChange("attachment", null);
+                            handleChange("existingAttachment", null);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                        >
+                          Remove File
+                        </button>
+                      </div>
+                    )}
+                    {formData.attachment && (
+                      <div className="file-preview">
+                        <p>New file: {formData.attachment.name}</p>
+                        <button 
+                          type="button" 
+                          className="btn-text"
+                          onClick={() => {
+                            handleFileChange("attachment", null);
                             if (fileInputRef.current) fileInputRef.current.value = "";
                           }}
                         >
@@ -592,6 +571,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     <button
                       onClick={nextPage}
                       type="button"
+                      disabled={!formData.budget || isNaN(formData.budget) || formData.budget <= 0}
                       className="btn-cta btn-cta--medium"
                     >
                       Next
@@ -600,8 +580,8 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* Page 4: Summary */}
-              {currentPage === 4 && (
+              {/* Page 3: Summary */}
+              {currentPage === 3 && (
                 <div className="form-page">
                   <CreateBriefSummary
                     title={formData.title}
@@ -612,7 +592,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     targetPlatform={formData.targetPlatform}
                     reviewDeadline={formData.reviewDeadline}
                     deadline={formData.deadline}
-                    attachment={formData.attachment}
+                    attachment={formData.attachment || formData.existingAttachment}
                   />
 
                   <div className="btn-container btn-container--center mt-1p5">
@@ -628,7 +608,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                       className="btn-cta btn-cta--medium"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Creating..." : "Create Brief"}
+                      {isSubmitting ? "Updating..." : "Update Brief"}
                     </button>
                   </div>
                 </div>
@@ -642,4 +622,4 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default CreateBriefModal;
+export default UpdateBriefModal;

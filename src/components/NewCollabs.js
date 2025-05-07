@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInstagram, faTiktok } from "@fortawesome/free-brands-svg-icons";
+import { 
+  faInstagram, 
+  faTiktok,
+  faYoutube,
+  
+} from "@fortawesome/free-brands-svg-icons";
+import { faSearch , faFilter} from "@fortawesome/free-solid-svg-icons";
+
 import projectCard from "../assets/project-card.png";
 import moment from "moment";
-import "../styles/chippycheckbox.scss";
+import "../styles/newCollabs.scss";
 import ProjectModal from "./ProjectModal";
 
 const NewCollabs = () => {
@@ -12,8 +19,10 @@ const NewCollabs = () => {
   const [filteredBriefs, setFilteredBriefs] = useState([]);
   const [textQuery, setTextQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBrief, setSelectedBrief] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const getAllBriefs = async () => {
     try {
@@ -36,7 +45,7 @@ const NewCollabs = () => {
 
     if (textQuery) {
       results = results.filter((brief) =>
-        [brief.title,  ...brief.categories, ...brief.tags]
+        [brief.title, ...brief.categories, ...brief.tags]
           .join(" ")
           .toLowerCase()
           .includes(textQuery.toLowerCase())
@@ -49,14 +58,27 @@ const NewCollabs = () => {
       );
     }
 
+    if (categoryFilter.length > 0) {
+      results = results.filter((brief) =>
+        brief.categories.some(cat => categoryFilter.includes(cat))
+   ) }
+
     setFilteredBriefs(results);
-  }, [textQuery, platformFilter, briefs]);
+  }, [textQuery, platformFilter, categoryFilter, briefs]);
 
   const togglePlatform = (platform) => {
     setPlatformFilter((prev) =>
       prev.includes(platform)
         ? prev.filter((p) => p !== platform)
         : [...prev, platform]
+    );
+  };
+
+  const toggleCategory = (category) => {
+    setCategoryFilter((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
     );
   };
 
@@ -70,99 +92,133 @@ const NewCollabs = () => {
     setSelectedBrief(null);
   };
 
+  // Extract all unique categories from briefs
+  const allCategories = [...new Set(briefs.flatMap(brief => brief.categories))];
+
   return (
     <section className="new-collabs">
       <div className="new-collabs__header">
-        <form>
+        <div className="search-container">
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
           <input
             type="text"
-            className="form__input form__input--full"
+            className="search-input"
             onChange={(e) => setTextQuery(e.target.value)}
-            placeholder="Search keywords, brands, etc"
+            placeholder="Search keywords, brands, categories..."
           />
-          <div className="label-col-container__row">
-            <ul className="chippy">
-              <li className="chippy__li">
-                <input
-                  type="checkbox"
-                  id="instagram"
-                  onChange={() => togglePlatform("Instagram")}
-                  checked={platformFilter.includes("Instagram")}
-                  className="chippy__input"
-                />
-                <label htmlFor="instagram" className="chippy__label">
-                  <FontAwesomeIcon className="icon-left" icon={faInstagram} />
+          <button 
+            className="filter-toggle"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FontAwesomeIcon icon={faFilter} />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="filters-container">
+            <div className="filter-section">
+              <h4 className="filter-title">Platforms</h4>
+              <div className="platform-filters">
+                <button
+                  className={`platform-filter ${platformFilter.includes("Instagram") ? 'active' : ''}`}
+                  onClick={() => togglePlatform("Instagram")}
+                >
+                  <FontAwesomeIcon icon={faInstagram} />
                   Instagram
-                </label>
-              </li>
-              <li className="chippy__li">
-                <input
-                  type="checkbox"
-                  id="tiktok"
-                  onChange={() => togglePlatform("TikTok")}
-                  checked={platformFilter.includes("TikTok")}
-                  className="chippy__input"
-                />
-                <label htmlFor="tiktok" className="chippy__label">
-                  <FontAwesomeIcon className="icon-left" icon={faTiktok} />
+                </button>
+                <button
+                  className={`platform-filter ${platformFilter.includes("TikTok") ? 'active' : ''}`}
+                  onClick={() => togglePlatform("TikTok")}
+                >
+                  <FontAwesomeIcon icon={faTiktok} />
                   TikTok
-                </label>
-              </li>
-            </ul>
+                </button>
+                <button
+                  className={`platform-filter ${platformFilter.includes("YouTube") ? 'active' : ''}`}
+                  onClick={() => togglePlatform("YouTube")}
+                >
+                  <FontAwesomeIcon icon={faYoutube} />
+                  YouTube
+                </button>
+              </div>
+            </div>
+
+            <div className="filter-section">
+              <h4 className="filter-title">Categories</h4>
+              <div className="category-filters">
+                {allCategories.map(category => (
+                  <button
+                    key={category}
+                    className={`category-filter ${categoryFilter.includes(category) ? 'active' : ''}`}
+                    onClick={() => toggleCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </form>
+        )}
       </div>
 
-      <section className="project-container">
+      <div className="collabs-grid">
         {(filteredBriefs.length ? filteredBriefs : briefs).map((brief) => (
-          <button
+          <div 
             key={brief._id}
+            className="collab-card"
             onClick={() => expandProject(brief)}
-            className="dashboard__btn"
           >
-            <div className="img-container">
-            {brief.advertiserId && brief.advertiserId.userId ? (
-  <img
-    src={brief.advertiserId.userId.profilePhoto.url || projectCard}
-    alt="advertiser"
-    className="project-container__img"
-  />
-) : (
-  <img
-    src={projectCard} // Default image if profilePhoto is not available
-    alt="project"
-    className="project-container__img"
-  />
-)}
-
-              <p className="img-container__text">
-                {brief.validationStatus === "accepted" ? "✅ Validated" : "🕒 Pending"}
-              </p>
+            <div className="card-image">
+              {brief.advertiserId && brief.advertiserId.userId ? (
+                <img
+                  src={brief.advertiserId.userId.profilePhoto.url || projectCard}
+                  alt="advertiser"
+                />
+              ) : (
+                <img src={projectCard} alt="project" />
+              )}
+              <span className={`status-badge ${brief.validationStatus === "accepted" ? 'validated' : 'pending'}`}>
+                {brief.validationStatus === "accepted" ? "Validated" : "Pending"}
+              </span>
             </div>
-            <div className="project-container__text-container">
-              <h4 className="project-container__text project-container__text--company">
-                {brief.advertiserId?.companyName}
-              </h4>
-              <h5 className="project-container__text project-container__text--title">
-                {brief.title.length > 20
-                  ? brief.title.slice(0, 20).concat("...")
-                  : brief.title}
-              </h5>
-              <h6 className="project-container__text project-container__text--date">
-                Due Date: {moment(brief.deadline).format("MMMM Do YYYY")}
-              </h6>
-              <div className="">
-                {brief.targetPlatform === "Instagram" && (
-                  <FontAwesomeIcon className="icon-left" icon={faInstagram} />
-                )}
-                {brief.targetPlatform === "TikTok" && (
-                  <FontAwesomeIcon className="icon-left" icon={faTiktok} />
+            
+            <div className="card-content">
+              <div className="card-header">
+                <h4 className="company-name">{brief.advertiserId?.companyName}</h4>
+                <div className="platform-icon">
+                  {brief.targetPlatform === "Instagram" && (
+                    <FontAwesomeIcon icon={faInstagram} />
+                  )}
+                  {brief.targetPlatform === "TikTok" && (
+                    <FontAwesomeIcon icon={faTiktok} />
+                  )}
+                  {brief.targetPlatform === "YouTube" && (
+                    <FontAwesomeIcon icon={faYoutube} />
+                  )}
+                </div>
+              </div>
+              
+              <h3 className="project-title">{brief.title}</h3>
+              
+              <div className="card-categories">
+                {brief.categories.map(category => (
+                  <span key={category} className="category-tag">{category}</span>
+                ))}
+              </div>
+              
+              <div className="card-footer">
+                <span className="due-date">
+                  Due: {moment(brief.deadline).format("MMM Do")}
+                </span>
+                {brief.budget && (
+                  <span className="budget">{brief.budget} DT</span>
                 )}
               </div>
             </div>
-          </button>
+          </div>
         ))}
-      </section>
+      </div>
 
       <ProjectModal
         isOpen={isModalOpen}
@@ -174,7 +230,8 @@ const NewCollabs = () => {
           left: 0,
           width: "100%",
           height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          zIndex: 1000
         }}
       />
     </section>

@@ -13,9 +13,15 @@ import NewCollabs from "./NewCollabs";
 import CreateBriefModal from "./CreateBriefModal";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import "../styles/dashboard.scss";
+import Notifications from "./Notifications";
+
 import Swal from "sweetalert2";
 import colabFolder from "../assets/colab-logo.png";
 import colabTextTransparent from "../assets/colab-text-transparent.png";
+import TiktokLogo from "../assets/tiktok-logo.png";
+import InstaLogo from "../assets/insta-logo.png";
+
+
 import axios from "../api/axios";
 import MyBriefModel from "./MyBriefModel";
 import MyCampaignModal from "./MyCampaignModal";
@@ -168,7 +174,7 @@ const Dashboard = () => {
                 <div className="profile-social-stats">
                   <div className="profile-social-stats__item">
                     <a href={`https://www.tiktok.com/${user.username}`} target="_blank" rel="noopener noreferrer">
-                      <img src={colabTextTransparent} alt="tiktok" className="tiktok-icon" />
+                      <img src={TiktokLogo} alt="tiktok" className="tiktok-icon" />
                     </a>
                     <div className="profile-social-stats__details">
                       <div className="profile-social-stats__followers">
@@ -185,7 +191,7 @@ const Dashboard = () => {
                   </div>
                   <div className="profile-social-stats__item">
                     <a href={`https://www.instagram.com/${user.username}`} target="_blank" rel="noopener noreferrer">
-                      <img src={colabTextTransparent} alt="Instagram" className="instagram-icon" />
+                      <img src={InstaLogo} alt="Instagram" className="instagram-icon" />
                     </a>
                     <div className="profile-social-stats__details">
                       <div className="profile-social-stats__followers">
@@ -219,16 +225,16 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="dashboard-header-right">
-              <FontAwesomeIcon icon={faBell} className="icon-medium" />
-              <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
-              </button>
-              {user.avatar && (
-                <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
-                  <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
-                </Link>
-              )}
-            </div>
+  <Notifications />
+  <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
+    <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
+  </button>
+  {user.avatar && (
+    <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
+      <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
+    </Link>
+  )}
+</div>
           </header>
         ) : user && user.advertiser ? (
           <header className="dashboard-header dashboard-header--light">
@@ -260,16 +266,16 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="dashboard-header-right">
-              <FontAwesomeIcon icon={faBell} className="icon-medium" />
-              <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
-              </button>
-              {user.avatar && (
-                <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
-                  <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
-                </Link>
-              )}
-            </div>
+  <Notifications />
+  <button onClick={handleLogout} className="link link--dark" style={{ background: "none", border: "none", cursor: "pointer" }}>
+    <FontAwesomeIcon icon={faArrowRightFromBracket} className="icon-medium" />
+  </button>
+  {user.avatar && (
+    <Link to="/updateprofile" className="register__text register__text--subtle text--underline">
+      <img className="dashboard-header-right__avatar" src={user.avatar} alt="profile" />
+    </Link>
+  )}
+</div>
           </header>
         ) : null}
 

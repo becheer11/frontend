@@ -9,12 +9,17 @@ import {
   faFileAlt,
   faUserTie,
   faPlus,
-  faChartLine
+  faChartLine,
+  faTrash,
+  faEdit
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
 import axios from "../api/axios";
+import { ToastContainer, toast } from 'react-toastify';
+
 import CreateCampaignModal from "./CreateCampaignModal";
+import UpdateBriefModal from "./UpdateBriefModal"; // You'll need to create this
 import "../styles/mybrief-modal.scss";
 
 const MODAL_STYLES = {
@@ -38,6 +43,8 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
   const [campaigns, setCampaigns] = useState([]);
   const [activeTab, setActiveTab] = useState("brief");
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [showUpdateBrief, setShowUpdateBrief] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (brief && brief._id) {
@@ -54,6 +61,30 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
       fetchCampaigns();
     }
   }, [brief]);
+
+  const handleDeleteBrief = async () => {
+    if (!window.confirm("Are you sure you want to delete this brief? This action cannot be undone.")) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      await axios.delete(`/api/brief/${brief._id}`, {
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
+        withCredentials: true,
+      });
+      toast.success("Brief deleted successfully!");
+      refreshDashboard();
+      onClose();
+    } catch (err) {
+      console.error("Error deleting brief:", err);
+      toast.error(err.response?.data?.message || "Failed to delete brief");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!isOpen || !brief) return null;
 
@@ -82,11 +113,36 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                 )}
               </div>
             </div>
-            <button onClick={onClose} className="brief-modal__close-btn">
-              <FontAwesomeIcon icon={faX} />
-            </button>
+            
+            <div className="brief-modal__header-actions">
+              {/* Only show edit/delete buttons if user is advertiser and owns this brief */}
+              {brief.advertiserId?.userId?._id && (
+                <>
+                  <button 
+                    onClick={() => setShowUpdateBrief(true)}
+                    className="brief-modal__action-btn brief-modal__action-btn--edit"
+                    disabled={isDeleting}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                    Edit
+                  </button>
+                  <button 
+                    onClick={handleDeleteBrief}
+                    className="brief-modal__action-btn brief-modal__action-btn--delete"
+                    disabled={isDeleting}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                </>
+              )}
+              
+              <button onClick={onClose} className="brief-modal__close-btn">
+                <FontAwesomeIcon icon={faX} />
+              </button>
+            </div>
           </div>
-
+          
           {/* Main Content */}
           <div className="brief-modal__content">
             {/* Navigation Tabs */}
@@ -335,6 +391,11 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
         </div>
       </div>
 
+
+          {/* Rest of your existing component remains the same */}
+          {/* ... */}
+
+
       {showCreateCampaign && (
         <CreateCampaignModal
           isOpen={showCreateCampaign}
@@ -353,6 +414,18 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
               }
             };
             fetchCampaigns();
+          }}
+        />
+      )}
+
+      {showUpdateBrief && (
+        <UpdateBriefModal
+          isOpen={showUpdateBrief}
+          onClose={() => setShowUpdateBrief(false)}
+          brief={brief}
+          refreshBrief={() => {
+            refreshDashboard();
+            onClose(); // Close the modal to show updated data
           }}
         />
       )}
