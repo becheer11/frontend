@@ -1,0 +1,190 @@
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+  }
+  
+  .admin-campaign-modal {
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+  
+      .header-content {
+        flex: 1;
+      }
+  
+      .modal-title {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #333;
+      }
+  
+      .modal-meta {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #666;
+  
+        .status-badge {
+          padding: 3px 8px;
+          border-radius: 4px;
+          font-weight: 500;
+  
+          &.approved {
+            background-color: #e6f7ee;
+            color: #10b759;
+          }
+          &.pending {
+            background-color: #fff8e6;
+            color: #f59f00;
+          }
+          &.rejected {
+            background-color: #fce8e8;
+            color: #f03e3e;
+          }
+        }
+  
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+      }
+  
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s;
+  
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+  
+    .modal-content {
+      .section-title {
+        font-size: 1.2rem;
+        margin: 20px 0 15px;
+        color: #444;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+  
+      .creator-info-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+  
+        .creator-details {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 15px;
+  
+          .detail-item {
+            margin-bottom: 8px;
+  
+            strong {
+              display: inline-block;
+              min-width: 100px;
+              color: #555;
+            }
+          }
+  
+          .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+  
+            a {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              color: #1a73e8;
+              text-decoration: none;
+              font-size: 0.9rem;
+  
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+  
+      .campaign-details-section {
+        .campaign-description {
+          margin-bottom: 20px;
+          line-height: 1.6;
+        }
+  
+        .campaign-attachment {
+          margin: 20px 0;
+  
+          .attachment-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+  
+          .attachment-video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+          }
+        }
+  
+        .deliverables-section {
+          .deliverables-list {
+            padding-left: 20px;
+            margin-top: 10px;
+  
+            li {
+              margin-bottom: 5px;
+            }
+          }
+        }
+      }
+  
+      .performance-section {
+        .metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 15px;
+  
+          .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+  
+            .metric-value {
+              font-size: 1.5rem;
+              font-weight: 600;
+              margin-bottom: 5px;
+            }
+  
+            .metric-label {
+              font-size: 0.9rem;
+              color: #666;
+            }
+          }
+        }
+      }
+    }
+  }

@@ -108,7 +108,7 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                 {brief.budget && (
                   <span className="brief-modal__budget">
                     <FontAwesomeIcon icon={faDollarSign} className="icon-meta" />
-                    Budget: ${brief.budget}
+                    Budget: DT{brief.budget}
                   </span>
                 )}
               </div>
@@ -216,7 +216,7 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                       </h3>
                       <div className="brief-stats">
                         <div className="brief-stat">
-                          <span className="brief-stat__value">${brief.budget}</span>
+                          <span className="brief-stat__value">DT{brief.budget}</span>
                           <span className="brief-stat__label">Total Budget</span>
                         </div>
                       </div>

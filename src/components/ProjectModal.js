@@ -97,7 +97,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                 </span>
                 <span className="brief-modal__budget">
                   <FontAwesomeIcon icon={faDollarSign} className="icon-meta" />
-                  Budget: ${brief.budget}
+                  Budget: {brief.budget} DT
                 </span>
               </div>
             </div>
@@ -178,7 +178,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                       </h3>
                       <div className="brief-stats">
                         <div className="brief-stat">
-                          <span className="brief-stat__value">${brief.budget}</span>
+                          <span className="brief-stat__value"> {brief.budget} DT </span>
                           <span className="brief-stat__label">Total Budget</span>
                         </div>
                       </div>
@@ -278,7 +278,6 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                       {showSuccess && (
                 <button 
                 onClick={() => {
-                  onClose(); // Close the current modal
 
                   setTimeout(() => {
                     setShowCreateCampaign(true); // Open campaign modal after a small delay
