@@ -28,19 +28,6 @@ const OVERLAY_STYLES = {
   zIndex: 1000,
 };
 
-const AVAILABLE_CATEGORIES = [
-  "Photography",
-  "Videography",
-  "Graphic Design",
-  "Social Media",
-  "Content Writing",
-  "Web Development",
-  "Marketing",
-  "Branding",
-  "Animation",
-  "Illustration"
-];
-
 const MultiSelectDropdown = ({
   options,
   selected,
@@ -125,6 +112,90 @@ const MultiSelectDropdown = ({
   );
 };
 
+const PlatformSelect = ({
+  selected,
+  onChange,
+  error
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (platform) => {
+    if (selected.includes(platform)) {
+      onChange(selected.filter(item => item !== platform));
+    } else {
+      onChange([...selected, platform]);
+    }
+  };
+
+  const removeItem = (platform, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== platform));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const PLATFORM_OPTIONS = ["Instagram", "TikTok", "Both"];
+
+  return (
+    <div 
+      className={`multi-select-dropdown ${isOpen ? "open" : ""} ${error ? "error" : ""}`}
+      ref={dropdownRef}
+    >
+      <div className="dropdown-header" onClick={toggleDropdown}>
+        {selected.length === 0 ? (
+          <span className="placeholder">Select platforms</span>
+        ) : (
+          <div className="selected-items">
+            {selected.map(item => (
+              <span key={item} className="selected-item">
+                {item}
+                <span 
+                  className="remove-btn"
+                  onClick={(e) => removeItem(item, e)}
+                >
+                  ×
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="dropdown-arrow">▾</span>
+      </div>
+      
+      {isOpen && (
+        <div className="dropdown-options">
+          {PLATFORM_OPTIONS.map(option => (
+            <div
+              key={option}
+              className={`dropdown-option ${selected.includes(option) ? "selected" : ""}`}
+              onClick={() => handleSelect(option)}
+            >
+              {option}
+              {selected.includes(option) && (
+                <span className="checkmark">✓</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
   const { auth } = useAuth(AuthContext);
   const fileInputRef = useRef(null);
@@ -133,6 +204,7 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
   const [serverError, setServerError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [availableCategories, setAvailableCategories] = useState([]);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -140,7 +212,7 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
     categories: [],
     tags: [],
     budget: "",
-    targetPlatform: "Instagram",
+    targetPlatform: ["Instagram"],
     reviewDeadline: "",
     deadline: "",
     attachment: null,
@@ -148,14 +220,30 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
   });
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/categories");
+        setAvailableCategories(response.data.categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (brief) {
       setFormData({
         title: brief.title || "",
         description: brief.description || "",
-        categories: brief.categories || [],
+        categories: brief.categories?.map(cat => cat.name) || [],
         tags: brief.tags || [],
         budget: brief.budget || "",
-        targetPlatform: brief.targetPlatform || "Instagram",
+        targetPlatform: Array.isArray(brief.targetPlatform) ? brief.targetPlatform : 
+                      brief.targetPlatform ? [brief.targetPlatform] : ["Instagram"],
         reviewDeadline: brief.reviewDeadline ? new Date(brief.reviewDeadline).toISOString().split('T')[0] : "",
         deadline: brief.deadline ? new Date(brief.deadline).toISOString().split('T')[0] : "",
         attachment: null,
@@ -244,7 +332,9 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
         if (!formData.categories || formData.categories.length === 0) {
           newErrors.categories = "At least one category is required";
         }
-        if (!formData.targetPlatform) newErrors.targetPlatform = "Platform is required";
+        if (!formData.targetPlatform || formData.targetPlatform.length === 0) {
+          newErrors.targetPlatform = "At least one platform is required";
+        }
         return newErrors;
       },
       2: () => {
@@ -264,7 +354,7 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
     e.preventDefault();
     setIsSubmitting(true);
     setServerError(null);
-
+  
     const validationErrors = validateCurrentPage();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -272,22 +362,30 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
       toast.error("Please fix all errors before submitting");
       return;
     }
-
+  
     try {
       const formDataToSend = new FormData();
       
-      // Append all fields except existingAttachment
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "attachment" && value) {
-          formDataToSend.append(key, value);
-        } else if (key === "existingAttachment") {
-          // Skip - this is just for UI
-        } else if (Array.isArray(value)) {
-          value.forEach(item => formDataToSend.append(`${key}[]`, item));
-        } else {
-          formDataToSend.append(key, value);
-        }
-      });
+      // Append all fields
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("budget", formData.budget);
+      formDataToSend.append("reviewDeadline", formData.reviewDeadline);
+      formDataToSend.append("deadline", formData.deadline);
+      
+      // Append arrays correctly
+      formData.categories.forEach(cat => formDataToSend.append("categories[]", cat));
+      formData.tags.forEach(tag => formDataToSend.append("tags[]", tag));
+      formData.targetPlatform.forEach(platform => formDataToSend.append("targetPlatform[]", platform));
+      
+      if (formData.attachment) {
+        formDataToSend.append("file", formData.attachment);
+      }
+
+      // If removing existing attachment
+      if (!formData.existingAttachment && !formData.attachment) {
+        formDataToSend.append("removeAttachment", "true");
+      }
 
       const response = await axios.put(`/api/brief/${brief._id}`, formDataToSend, {
         headers: {
@@ -296,18 +394,21 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
         },
         withCredentials: true,
       });
-
-      if (response.status === 200) {
+  
+      if (response.data.success) {
         toast.success("Brief updated successfully!");
         setShowSuccess(true);
         setTimeout(() => {
           onClose();
           refreshBrief();
         }, 1500);
+      } else {
+        throw new Error(response.data.message || "Update failed");
       }
     } catch (err) {
       console.error("Error updating brief:", err);
       const errorMessage = err.response?.data?.message || 
+        err.message || 
         "Failed to update brief. Please try again later.";
       setServerError(errorMessage);
       toast.error(errorMessage);
@@ -431,7 +532,7 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
                   <div className="label-row-container__col">
                     <label className="form__label">Categories*</label>
                     <MultiSelectDropdown
-                      options={AVAILABLE_CATEGORIES}
+                      options={availableCategories.map(cat => cat.name)}
                       selected={formData.categories}
                       onChange={(selected) => handleChange("categories", selected)}
                       placeholder="Select categories..."
@@ -467,17 +568,11 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
                     <label htmlFor="platform" className="form__label">
                       Platform*
                     </label>
-                    <select
-                      value={formData.targetPlatform}
-                      onChange={(e) => handleChange("targetPlatform", e.target.value)}
-                      className={`form__input form__input--select ${errors.targetPlatform ? "input-error" : ""}`}
-                    >
-                      <option value="Instagram">Instagram</option>
-                      <option value="TikTok">TikTok</option>
-                      <option value="YouTube">YouTube</option>
-                      <option value="Twitter">Twitter</option>
-                      <option value="Facebook">Facebook</option>
-                    </select>
+                    <PlatformSelect
+                      selected={formData.targetPlatform}
+                      onChange={(selected) => handleChange("targetPlatform", selected)}
+                      error={errors.targetPlatform}
+                    />
                     {errors.targetPlatform && <span className="error-message">{errors.targetPlatform}</span>}
                   </div>
 
@@ -492,7 +587,8 @@ const UpdateBriefModal = ({ isOpen, onClose, brief, refreshBrief }) => {
                     <button
                       onClick={nextPage}
                       type="button"
-                      disabled={!formData.categories || formData.categories.length === 0}
+                      disabled={!formData.categories || formData.categories.length === 0 || 
+                               !formData.targetPlatform || formData.targetPlatform.length === 0}
                       className="btn-cta btn-cta--medium"
                     >
                       Next

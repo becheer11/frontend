@@ -5,10 +5,10 @@ import {
   faInstagram, 
   faTiktok,
   faYoutube,
-  
 } from "@fortawesome/free-brands-svg-icons";
-import { faSearch , faFilter} from "@fortawesome/free-solid-svg-icons";
-
+import { faSearch, faFilter } from "@fortawesome/free-solid-svg-icons";
+import useAuth from "../hooks/useAuth";
+import AuthContext from "../context/AuthProvider";
 import projectCard from "../assets/project-card.png";
 import moment from "moment";
 import "../styles/newCollabs.scss";
@@ -23,6 +23,7 @@ const NewCollabs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBrief, setSelectedBrief] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const { auth } = useAuth(AuthContext);
 
   const getAllBriefs = async () => {
     try {
@@ -30,7 +31,10 @@ const NewCollabs = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      setBriefs(response.data.briefs || []);
+      
+      // Filter out briefs that are not accepted
+      const acceptedBriefs = response.data.briefs.filter(brief => brief.validationStatus === "accepted");
+      setBriefs(acceptedBriefs); // Only set accepted briefs
     } catch (error) {
       console.error("Error fetching briefs:", error);
     }
@@ -61,7 +65,8 @@ const NewCollabs = () => {
     if (categoryFilter.length > 0) {
       results = results.filter((brief) =>
         brief.categories.some(cat => categoryFilter.includes(cat))
-   ) }
+      );
+    }
 
     setFilteredBriefs(results);
   }, [textQuery, platformFilter, categoryFilter, briefs]);
@@ -172,7 +177,7 @@ const NewCollabs = () => {
             <div className="card-image">
               {brief.advertiserId && brief.advertiserId.userId ? (
                 <img
-                  src={brief.advertiserId.userId.profilePhoto.url || projectCard}
+                  src={ projectCard}
                   alt="advertiser"
                 />
               ) : (
@@ -202,9 +207,12 @@ const NewCollabs = () => {
               <h3 className="project-title">{brief.title}</h3>
               
               <div className="card-categories">
-                {brief.categories.map(category => (
-                  <span key={category} className="category-tag">{category}</span>
-                ))}
+                            
+              {brief.categories?.map((category, index) => (
+  <li key={index} className="category-tag">
+    {typeof category === "object" ? category.name : category}
+  </li>
+))}
               </div>
               
               <div className="card-footer">
@@ -224,6 +232,8 @@ const NewCollabs = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         brief={selectedBrief}
+        role={auth.roles}  // Make sure you're passing the correct roles here
+
         OVERLAY_STYLES={{
           position: "fixed",
           top: 0,

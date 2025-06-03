@@ -32,7 +32,7 @@ const RegisterForm = ({
   const [validName, setValidName] = useState(false);
   const [userFocus, setUserFocus] = useState(false);
   const [username, setUsername] = useState("");
-
+  const[industry,setIndustry]=useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const[tiktokUsername,settiktokUsername]= useState("");
@@ -89,9 +89,9 @@ const RegisterForm = ({
         email: user,
         password: pwd,
         companyName: company,
-        username,
-        firstName,
-        lastName,
+        username:username,
+        firstName:firstName,
+        lastName:lastName,
         tiktokUsername: tiktokUsername,
         instaUsername: instaUsername,
       });

@@ -145,11 +145,12 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                         Categories
                       </h3>
                       <div className="brief-tags">
-                        {brief.categories?.map((category, index) => (
-                          <span key={index} className="brief-tag">
-                            {category}
-                          </span>
-                        ))}
+                                   
+              {brief.categories?.map((category, index) => (
+  <li key={index} className="brief-tags">
+    {typeof category === "object" ? category.name : category}
+  </li>
+))}
                       </div>
                     </div>
 
@@ -166,7 +167,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                           Deadline: {new Date(brief.deadline).toLocaleDateString()}
                         </li>
                         <li className="brief-details__list-item">
-                          Revisions: {brief.numberOfRevisions || 1}
+                          Revisions: {brief.numberOfInterests || 1}
                         </li>
                       </ul>
                     </div>
@@ -252,8 +253,11 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                                             </tr>
                                           </tbody>
                                         </table>
-                                      </div>
-                  { !showAddComment && !showSuccess && (
+                    
+                                    </div>
+                                    
+                  { !showAddComment && !showSuccess &&  role.includes("Influencer") && (
+                    
                     <div className="action-card action-card--primary">
                       <h3 className="action-card__title">Accept This Brief</h3>
                       <p className="action-card__description">
@@ -294,38 +298,7 @@ const ProjectModal = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                   )}
                
 
-                  {showAddComment && (
-                    <div className="action-card">
-                      <h3 className="action-card__title">Request Changes</h3>
-                      <form onSubmit={(e) => handleSubmitReviewContract("modify", e)}>
-                        <div className="form-group">
-                          <label htmlFor="comment" className="form-label">Comments</label>
-                          <textarea
-                            id="comment"
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            className="form-input"
-                            rows="4"
-                            placeholder="Specify what changes you'd like to request..."
-                          />
-                        </div>
-                        <button type="submit" className="action-card__btn action-card__btn--secondary">
-                          <FontAwesomeIcon icon={faPencil} className="icon-btn" />
-                          Submit Changes Request
-                        </button>
-                      </form>
-                    </div>
-                  )}
-
-                  {!showAddComment && !showSuccess && (
-                    <button 
-                      onClick={() => setShowAddComment(true)}
-                      className="action-card__btn action-card__btn--secondary"
-                    >
-                      <FontAwesomeIcon icon={faPencil} className="icon-btn" />
-                      Request Changes
-                    </button>
-                  )}
+                 
                 </div>
               )}
             </div>

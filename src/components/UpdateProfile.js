@@ -9,19 +9,6 @@ import greyCircle from '../assets/greycircle.jpg';
 import Links from './Links';
 import '../styles/updateprofile.scss';
 
-const AVAILABLE_CATEGORIES = [
-  "Photography",
-  "Videography",
-  "Graphic Design",
-  "Social Media",
-  "Content Writing",
-  "Web Development",
-  "Marketing",
-  "Branding",
-  "Animation",
-  "Illustration"
-];
-
 const MultiSelectDropdown = ({
   options,
   selected,
@@ -90,12 +77,12 @@ const MultiSelectDropdown = ({
         <div className="dropdown-options">
           {options.map(option => (
             <div
-              key={option}
-              className={`dropdown-option ${selected.includes(option) ? "selected" : ""}`}
+              key={option._id}
+              className={`dropdown-option ${selected.some(cat => cat._id === option._id) ? "selected" : ""}`}
               onClick={() => handleSelect(option)}
             >
-              {option}
-              {selected.includes(option) && (
+              {option.name}
+              {selected.some(cat => cat._id === option._id) && (
                 <span className="checkmark">✓</span>
               )}
             </div>
@@ -135,6 +122,7 @@ const UpdateProfile = () => {
     address: '',
   });
 
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
@@ -142,23 +130,32 @@ const UpdateProfile = () => {
   const [newTag, setNewTag] = useState('');
 
   useEffect(() => {
-    // Fetch the user profile on page load
-    const fetchUserProfile = async () => {
+    // Fetch the user profile and available categories
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/user/getuser', { withCredentials: true });
+        // Fetch user profile
+        const userResponse = await axios.get('/api/user/getuser', { withCredentials: true });
+        
+        // Fetch available categories
+        const categoriesResponse = await axios.get('/api/categories');
+        
         setUserData({
-          ...response.data.userProfile,
-          tags: response.data.userProfile.tags || [],
-          categories: response.data.userProfile.categories || []
+          ...userResponse.data.userProfile,
+          tags: userResponse.data.userProfile.tags || [],
+          categories: userResponse.data.userProfile.categories || []
         });
-        if (response.data.userProfile.profilePhoto) {
-          setImagePreview(response.data.userProfile.profilePhoto.url);
+        
+        setAvailableCategories(categoriesResponse.data.categories);
+        
+        if (userResponse.data.userProfile.profilePhoto) {
+          setImagePreview(userResponse.data.userProfile.profilePhoto.url);
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchUserProfile();
+    
+    fetchData();
   }, []);
 
   const handleInputChange = (e) => {
@@ -187,23 +184,23 @@ const UpdateProfile = () => {
     }
   };
 
-  
-const handleTagChange = (e) => {
-  const value = e.target.value;
-  if (value.includes(',')) {
-    const newTags = value.split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag !== '');
-    
-    if (newTags.length > 0) {
-      setUserData(prev => ({
-        ...prev,
-        tags: [...prev.tags, ...newTags]
-      }));
-      setNewTag('');
+  const handleTagChange = (e) => {
+    const value = e.target.value;
+    if (value.includes(',')) {
+      const newTags = value.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
+      
+      if (newTags.length > 0) {
+        setUserData(prev => ({
+          ...prev,
+          tags: [...prev.tags, ...newTags]
+        }));
+        setNewTag('');
+      }
     }
-  }
-};
+  };
+
   const removeTag = (index) => {
     setUserData(prev => ({
       ...prev,
@@ -211,9 +208,18 @@ const handleTagChange = (e) => {
     }));
   };
 
+  const handleCategoryChange = (selectedCategories) => {
+    setUserData(prev => ({
+      ...prev,
+      categories: selectedCategories
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    
+    // Add the new tag if there's one
     if (newTag.trim()) {
       setUserData(prev => ({
         ...prev,
@@ -221,16 +227,28 @@ const handleTagChange = (e) => {
       }));
       setNewTag('');
     }
-    // Append all fields to formData correctly
-    Object.keys(userData).forEach(key => {
-      if (key === 'tags' || key === 'categories') {
-        // Ensure these are sent as proper arrays
-        userData[key].forEach(item => formData.append(`${key}[]`, item));
-      } else if (key !== 'profilePhoto') {
-        formData.append(key, userData[key]);
-      }
-    });
-  
+    
+    // Prepare categories data - we need to send just the IDs to the backend
+    const categoryIds = userData.categories.map(cat => cat._id || cat);
+
+    // Append all fields to formData
+    formData.append('username', userData.username);
+    formData.append('firstName', userData.firstName);
+    formData.append('lastName', userData.lastName);
+    formData.append('description', userData.description);
+    formData.append('instaUsername', userData.instaUsername);
+    formData.append('tiktokUsername', userData.tiktokUsername);
+    formData.append('instagram', userData.instagram);
+    formData.append('tiktok', userData.tiktok);
+    formData.append('companyName', userData.companyName);
+    formData.append('industry', userData.industry);
+    formData.append('website', userData.website);
+    formData.append('address', userData.address);
+    
+    // Append arrays
+    userData.tags.forEach(tag => formData.append('tags[]', tag));
+    categoryIds.forEach(catId => formData.append('categories[]', catId));
+    
     if (selectedFile) {
       formData.append('profilePhoto', selectedFile);
     }
@@ -257,7 +275,6 @@ const handleTagChange = (e) => {
       setErrMsg('Failed to update profile. Please try again.');
     }
   };
-   
 
   const handlePhotoSubmit = async (e) => {
     e.preventDefault();
@@ -292,7 +309,7 @@ const handleTagChange = (e) => {
               Hey, <br /> {userData.firstName || 'User'}
             </h1>
             <p className="update-profile__description mb-1p5">
-              {auth.roles.includes(2000)
+              {auth.roles.includes('Influancer')
                 ? "Please complete your profile so we can match you with the right brands."
                 : `Please update your company profile.`}
             </p>
@@ -363,55 +380,52 @@ const handleTagChange = (e) => {
                   </div>
 
                   <div className="form-group">
-  <label htmlFor="tags" className="update-profile-form__label">
-    Tags (comma separated)
-  </label>
-  <input
-    type="text"
-    id="tags"
-    value={newTag}
-    onChange={(e) => setNewTag(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (newTag.trim()) {
-          setUserData(prev => ({
-            ...prev,
-            tags: [...prev.tags, newTag.trim()]
-          }));
-          setNewTag('');
-        }
-      }
-    }}
-    placeholder="Enter tags separated by commas"
-    className="update-profile-form__input"
-  />
-  <div className="keywords-container">
-    {userData.tags.map((tag, index) => (
-      <div className="keywords-item" key={index}>
-        <span className="keywords-text">{tag}</span>
-        <span
-          onClick={() => removeTag(index)}
-          className="keywords-delete"
-        >
-          &times;
-        </span>
-      </div>
-    ))}
-  </div>
-</div>
+                    <label htmlFor="tags" className="update-profile-form__label">
+                      Tags (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      id="tags"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newTag.trim()) {
+                            setUserData(prev => ({
+                              ...prev,
+                              tags: [...prev.tags, newTag.trim()]
+                            }));
+                            setNewTag('');
+                          }
+                        }
+                      }}
+                      placeholder="Enter tags separated by commas"
+                      className="update-profile-form__input"
+                    />
+                    <div className="keywords-container">
+                      {userData.tags.map((tag, index) => (
+                        <div className="keywords-item" key={index}>
+                          <span className="keywords-text">{tag}</span>
+                          <span
+                            onClick={() => removeTag(index)}
+                            className="keywords-delete"
+                          >
+                            &times;
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   <div className="form-group">
                     <label htmlFor="categories" className="update-profile-form__label">
                       Categories
                     </label>
                     <MultiSelectDropdown
-                      options={AVAILABLE_CATEGORIES}
+                      options={availableCategories}
                       selected={userData.categories}
-                      onChange={(selected) => setUserData(prev => ({
-                        ...prev,
-                        categories: selected
-                      }))}
+                      onChange={handleCategoryChange}
                       placeholder="Select categories..."
                     />
                   </div>

@@ -18,7 +18,7 @@ const CreateProjectSummary = ({
   instagramTask,
   tiktokTask,
   youtubeTask,
-  numberOfRevisions,
+  numberOfInterests,
   paymentMethod,
   paymentPrice,
   paymentProduct,
@@ -248,7 +248,7 @@ const CreateProjectSummary = ({
                       The creator must upload all content on CoLab by{" "}
                       {moment(reviewDeadline).format("MMMM Do YYYY, h:mm:ss a")}{" "}
                       for review by the brand. The contract will include up to{" "}
-                      {numberOfRevisions} revisions if necessary. All content
+                      {numberOfInterests} revisions if necessary. All content
                       must be uploaded by{" "}
                       {moment(deadline).format("MMMM Do YYYY, h:mm:ss a")} after
                       the Creator receives approval from the brand.

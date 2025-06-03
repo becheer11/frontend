@@ -32,7 +32,11 @@ const AdvertisersTable = () => {
 
   const handleVerify = async (id) => {
     try {
-      await axios.patch(`/api/advertisers/${id}/verify`, { isVerified: true });
+        const config = {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true
+          };
+      await axios.put(`/api/user/${id}/verify`, { isVerified: true },config);
       Swal.fire("Success", "Advertiser verified successfully", "success");
       fetchAdvertisers();
     } catch (error) {
@@ -42,7 +46,11 @@ const AdvertisersTable = () => {
 
   const handleSuspend = async (id) => {
     try {
-      await axios.patch(`/api/advertisers/${id}/suspend`, { isSuspended: true });
+        const config = {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true
+          };
+      await axios.put(`/api/user/${id}/suspend`, { isSuspended: true },config);
       Swal.fire("Success", "Advertiser suspended successfully", "success");
       fetchAdvertisers();
     } catch (error) {
@@ -63,7 +71,11 @@ const AdvertisersTable = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`/api/advertisers/${id}`);
+          const config = {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true
+          };
+        await axios.delete(`/api/user/${id}`,config);
         Swal.fire("Deleted!", "The advertiser has been deleted.", "success");
         fetchAdvertisers();
       } catch (error) {
@@ -97,7 +109,6 @@ const AdvertisersTable = () => {
             <th>Email</th>
             <th>Status</th>
             <th>Industry</th>
-            <th>Briefs</th>
             <th>Joined At</th>
             <th>Actions</th>
           </tr>
@@ -109,12 +120,11 @@ const AdvertisersTable = () => {
               <td>{advertiser.userId?.username || "N/A"}</td>
               <td>{advertiser.userId?.email || "N/A"}</td>
               <td>
-                <span className={`status-badge ${advertiser.isSuspended ? "suspended" : "active"}`}>
-                  {advertiser.isSuspended ? "Suspended" : "Active"}
+                <span className={` ${advertiser.userId?.isSuspended ? "suspended" : "active"}`}>
+                  {advertiser.userId?.isSuspended ? "Suspended" : "Active"}
                 </span>
               </td>
-              <td>{advertiser.industry || "N/A"}</td>
-              <td>{advertiser.briefsCount || 0}</td>
+              <td>{advertiser.industry || "mobile"}</td>
               <td>{new Date(advertiser.createdAt).toLocaleDateString()}</td>
               <td className="actions-cell">
                 <button 
@@ -129,7 +139,7 @@ const AdvertisersTable = () => {
                 >
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
-                {!advertiser.isVerified && (
+                {!advertiser.userId?.isVerified && (
                   <button 
                     className="action-btn verify-btn"
                     onClick={() => handleVerify(advertiser._id)}
@@ -137,7 +147,7 @@ const AdvertisersTable = () => {
                     <FontAwesomeIcon icon={faCheck} />
                   </button>
                 )}
-                {!advertiser.isSuspended ? (
+                {!advertiser.userId?.isSuspended ? (
                   <button 
                     className="action-btn suspend-btn"
                     onClick={() => handleSuspend(advertiser._id)}

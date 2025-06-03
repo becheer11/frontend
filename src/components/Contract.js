@@ -13,7 +13,7 @@ const Contract = ({
   youtubeTask,
   reviewDeadline,
   deadline,
-  numberOfRevisions,
+  numberOfInterests,
   company,
 }) => {
   return (
@@ -38,7 +38,7 @@ const Contract = ({
         The creator must upload all content on CoLab by{" "}
         {moment(reviewDeadline).format("MMMM Do YYYY, h:mm:ss a")} for review by
         the brand ({company}). The contract will include up to{" "}
-        {numberOfRevisions} revisions if necessary. All content must be uploaded
+        {numberOfInterests} revisions if necessary. All content must be uploaded
         by {moment(deadline).format("MMMM Do YYYY, h:mm:ss a")} after the
         Creator receives approval from the brand.
       </p>

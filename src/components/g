@@ -49,7 +49,7 @@ const CreateBriefModal = ({
   const [reviewDeadline, setReviewDeadline] = useState("");
   const [deadline, setDeadline] = useState("");
   const [deadlineTime, setDeadlineTime] = useState("23:59");
-  const [numberOfRevisions, setNumberOfRevisions] = useState("1");
+  const [numberOfInterests, setnumberOfInterests] = useState("1");
 const [socialExample, setSocialExample] = useState("");
   const [uploadSuccessMsg, setUploadSuccessMsg] = useState("");
   // Form Pages
@@ -127,7 +127,7 @@ const [socialExample, setSocialExample] = useState("");
       reviewDeadline,
       deadline,
       deadlineTime,
-      numberOfRevisions,
+      numberOfInterests,
       categories,
       phrases,
       status: "no influencer assigned",

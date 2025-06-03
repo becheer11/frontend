@@ -188,10 +188,11 @@ const CreateCampaignModal = ({
       }
   
       Swal.fire("Submitted!", "Your campaign has been submitted.", "success");
-      onClose();
-      if (refreshDashboard) refreshDashboard();
+      if (refreshDashboard) {
+        await refreshDashboard(); // Refresh the dashboard data
+      }
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error)  {
       console.error("Error submitting campaign:", error);
       Swal.fire("Error", "Failed to submit campaign. Please try again.", "error");
     } finally {

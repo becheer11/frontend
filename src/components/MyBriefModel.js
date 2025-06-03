@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactDOM from "react-dom";
 import axios from "../api/axios";
 import { ToastContainer, toast } from 'react-toastify';
+import AdvertiserCampaignBriefModal from "./AdvertiserCampaignBrief";
 
 import CreateCampaignModal from "./CreateCampaignModal";
 import UpdateBriefModal from "./UpdateBriefModal"; // You'll need to create this
@@ -31,7 +32,7 @@ const MODAL_STYLES = {
   borderRadius: "24px",
   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   width: "85vw",
-  maxWidth: "1100px",
+  maxWidth: "1800px",
   height: "85vh",
   overflowY: "auto",
   padding: "0",
@@ -45,6 +46,8 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const [showUpdateBrief, setShowUpdateBrief] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+const [showCampaignModal, setShowCampaignModal] = useState(false);
 
   useEffect(() => {
     if (brief && brief._id) {
@@ -61,7 +64,10 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
       fetchCampaigns();
     }
   }, [brief]);
-
+  const handleCampaignClick = (campaign) => {
+    setSelectedCampaign(campaign);
+    setShowCampaignModal(true);
+  };
   const handleDeleteBrief = async () => {
     if (!window.confirm("Are you sure you want to delete this brief? This action cannot be undone.")) {
       return;
@@ -189,11 +195,11 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                         Requirements
                       </h3>
                       <ul className="brief-details__list">
-                        {brief.categories?.map((category, index) => (
-                          <li key={index} className="brief-details__list-item">
-                            {category}
-                          </li>
-                        ))}
+                      {brief.categories?.map((category, index) => (
+  <li key={index} className="brief-details__list-item">
+    {typeof category === "object" ? category.name : category}
+  </li>
+))}
                       </ul>
                     </div>
 
@@ -205,7 +211,7 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                       <ul className="brief-details__list">
                         <li className="brief-details__list-item">Platform: {brief.targetPlatform}</li>
                         <li className="brief-details__list-item">Deadline: {new Date(brief.deadline).toLocaleDateString()}</li>
-                        <li className="brief-details__list-item">Revisions: {brief.numberOfRevisions || 1}</li>
+                        <li className="brief-details__list-item">Revisions: {brief.numberOfInterests || 1}</li>
                       </ul>
                     </div>
 
@@ -264,7 +270,11 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
                   {campaigns.length > 0 ? (
                     <div className="brief-campaigns__grid">
                       {campaigns.map((campaign) => (
-                        <div key={campaign._id} className="campaign-card">
+                            <div 
+                            key={campaign._id} 
+                            className="campaign-card"
+                            onClick={() => handleCampaignClick(campaign)}
+                          >
                           <div className="campaign-card__header">
                             <div className="campaign-card__creator">
                               {campaign.creatorId?.userId?.profilePhoto?.url ? (
@@ -414,6 +424,28 @@ const MyBriefModel = ({ isOpen, onClose, brief, role = [], OVERLAY_STYLES, user,
               }
             };
             fetchCampaigns();
+          }}
+        />
+      )}
+   {showCampaignModal && (
+        <AdvertiserCampaignBriefModal
+          isOpen={showCampaignModal}
+          onClose={() => setShowCampaignModal(false)}
+          campaign={selectedCampaign}
+          OVERLAY_STYLES={OVERLAY_STYLES}
+          refreshDashboard={() => {
+            const fetchCampaigns = async () => {
+              try {
+                const res = await axios.get(`/api/campaigns/brief/${brief._id}`, {
+                  withCredentials: true,
+                });
+                setCampaigns(res.data.campaigns || []);
+              } catch (err) {
+                console.error("Error fetching campaigns:", err);
+              }
+            };
+            fetchCampaigns();
+            refreshDashboard();
           }}
         />
       )}

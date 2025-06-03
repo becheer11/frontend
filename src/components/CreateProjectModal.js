@@ -52,7 +52,7 @@ const CreateProjectModal = ({
   const [reviewDeadline, setReviewDeadline] = useState("");
   const [deadline, setDeadline] = useState("");
   const [deadlineTime, setDeadlineTime] = useState("23:59");
-  const [numberOfRevisions, setNumberOfRevisions] = useState("1");
+  const [numberOfInterests, setnumberOfInterests] = useState("1");
 
   // Form Pages
   const [showContractDetails, setShowContractDetails] = useState(true);
@@ -86,7 +86,7 @@ const CreateProjectModal = ({
     tiktokTask: tiktokDeliverable,
     youtubeTask: youtubeDeliverable,
     deadlineTime: deadlineTime,
-    numberOfRevisions: numberOfRevisions,
+    numberOfInterests: numberOfInterests,
     paymentMethod: paymentMethod,
     paymentPrice: paymentPrice,
     paymentProduct: paymentProduct,
@@ -218,7 +218,7 @@ const CreateProjectModal = ({
       reviewDeadline,
       deadline,
       deadlineTime,
-      numberOfRevisions,
+      numberOfInterests,
       paymentMethod,
       paymentPrice,
       paymentProduct,
@@ -244,7 +244,7 @@ const CreateProjectModal = ({
         reviewDeadline,
         deadline,
         deadlineTime,
-        numberOfRevisions,
+        numberOfInterests,
         paymentMethod,
         paymentPrice,
         paymentProduct,
@@ -521,7 +521,7 @@ const CreateProjectModal = ({
                   </div>
                 </div>
                 <div className="label-row-container__col label-row-container__col--revisions">
-                  <label htmlFor="numberofrevisions" className="form__label">
+                  <label htmlFor="numberOfInterests" className="form__label">
                     Revisions Required (3 max)
                   </label>
                   <input
@@ -529,9 +529,9 @@ const CreateProjectModal = ({
                     type="text"
                     placeholder="Enter a number"
                     onChange={(e) => {
-                      setNumberOfRevisions(e.target.value);
+                      setnumberOfInterests(e.target.value);
                     }}
-                    value={numberOfRevisions}
+                    value={numberOfInterests}
                   />
                 </div>
               </div>

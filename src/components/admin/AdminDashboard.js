@@ -7,7 +7,9 @@ import {
   faUsers,
   faBriefcase,
   faBullhorn,
-  faChartLine
+  faChartLine,
+  faTags // Add this for categories icon
+
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useAuth from "../../hooks/useAuth";
@@ -21,6 +23,7 @@ import BriefsTable from "./BriefsTable";
 import CampaignsTable from "./CampaignsTable";
 import CreatorsTable from "./CreatorsTable";
 import AdvertisersTable from "./AdvertisersTable";
+import CategoriesTable from "./CategoriesTable ";
 
 const AdminDashboard = () => {
   const { auth } = useAuth(AuthContext);
@@ -146,7 +149,15 @@ const AdminDashboard = () => {
             <FontAwesomeIcon icon={faUsers} />
             Advertisers
           </button>
+          <button
+  className={`admin-nav-item ${activeTab === "categories" ? "active" : ""}`}
+  onClick={() => setActiveTab("categories")}
+>
+  <FontAwesomeIcon icon={faTags} />
+  Categories
+</button>
         </nav>
+
         
         <div className="admin-sidebar-footer">
           <button onClick={handleLogout} className="logout-btn">
@@ -165,6 +176,7 @@ const AdminDashboard = () => {
             {activeTab === "campaigns" && "Campaigns Management"}
             {activeTab === "creators" && "Creators Management"}
             {activeTab === "advertisers" && "Advertisers Management"}
+            {activeTab === "categories" && <CategoriesTable />}
           </h1>
           <div className="admin-header-actions">
             <button className="notification-btn">

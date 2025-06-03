@@ -37,24 +37,11 @@ const INITIAL_FORM_STATE = {
   categories: [],
   tags: [],
   budget: "",
-  targetPlatform: "Instagram",
+  targetPlatform: ["Instagram"], // Now an array
   reviewDeadline: "",
   deadline: "",
   attachment: null,
 };
-
-const AVAILABLE_CATEGORIES = [
-  "Photography",
-  "Videography",
-  "Graphic Design",
-  "Social Media",
-  "Content Writing",
-  "Web Development",
-  "Marketing",
-  "Branding",
-  "Animation",
-  "Illustration"
-];
 
 const MultiSelectDropdown = ({
   options,
@@ -140,7 +127,91 @@ const MultiSelectDropdown = ({
   );
 };
 
-const CreateBriefModal = ({ isOpen, onClose }) => {
+const PlatformSelect = ({
+  selected,
+  onChange,
+  error
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (platform) => {
+    if (selected.includes(platform)) {
+      onChange(selected.filter(item => item !== platform));
+    } else {
+      onChange([...selected, platform]);
+    }
+  };
+
+  const removeItem = (platform, e) => {
+    e.stopPropagation();
+    onChange(selected.filter(item => item !== platform));
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const PLATFORM_OPTIONS = ["Instagram", "TikTok", "Both"];
+
+  return (
+    <div 
+      className={`multi-select-dropdown ${isOpen ? "open" : ""} ${error ? "error" : ""}`}
+      ref={dropdownRef}
+    >
+      <div className="dropdown-header" onClick={toggleDropdown}>
+        {selected.length === 0 ? (
+          <span className="placeholder">Select platforms</span>
+        ) : (
+          <div className="selected-items">
+            {selected.map(item => (
+              <span key={item} className="selected-item">
+                {item}
+                <span 
+                  className="remove-btn"
+                  onClick={(e) => removeItem(item, e)}
+                >
+                  ×
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="dropdown-arrow">▾</span>
+      </div>
+      
+      {isOpen && (
+        <div className="dropdown-options">
+          {PLATFORM_OPTIONS.map(option => (
+            <div
+              key={option}
+              className={`dropdown-option ${selected.includes(option) ? "selected" : ""}`}
+              onClick={() => handleSelect(option)}
+            >
+              {option}
+              {selected.includes(option) && (
+                <span className="checkmark">✓</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CreateBriefModal = ({ isOpen, refreshDashboard, onClose }) => {
   const { auth } = useAuth(AuthContext);
   const fileInputRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -148,6 +219,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
   const [serverError, setServerError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [availableCategories, setAvailableCategories] = useState([]);
   
   const {
     formData,
@@ -167,6 +239,22 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
       setShowSuccess(false);
     }
   }, [isOpen, resetForm]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/categories");
+        setAvailableCategories(response.data.categories);
+        console.log(response);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   const handleKeyDown = (e, field) => {
     if (e.key !== "Enter") return;
@@ -253,7 +341,9 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
         if (!formData.categories || formData.categories.length === 0) {
           newErrors.categories = "At least one category is required";
         }
-        if (!formData.targetPlatform) newErrors.targetPlatform = "Platform is required";
+        if (!formData.targetPlatform || formData.targetPlatform.length === 0) {
+          newErrors.targetPlatform = "At least one platform is required";
+        }
         return newErrors;
       },
       2: () => {
@@ -292,15 +382,22 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
 
     try {
       const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "attachment" && value) {
-          formDataToSend.append(key, value);
-        } else if (Array.isArray(value)) {
-          value.forEach(item => formDataToSend.append(`${key}[]`, item));
-        } else {
-          formDataToSend.append(key, value);
-        }
-      });
+      
+      // Append all fields
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("budget", formData.budget);
+      formDataToSend.append("reviewDeadline", formData.reviewDeadline);
+      formDataToSend.append("deadline", formData.deadline);
+      
+      // Append arrays correctly
+      formData.categories.forEach(cat => formDataToSend.append("categories[]", cat));
+      formData.tags.forEach(tag => formDataToSend.append("tags[]", tag));
+      formData.targetPlatform.forEach(platform => formDataToSend.append("targetPlatform[]", platform));
+      
+      if (formData.attachment) {
+        formDataToSend.append("attachment", formData.attachment);
+      }
 
       const response = await axios.post("/api/brief", formDataToSend, {
         headers: {
@@ -309,21 +406,21 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
         },
         withCredentials: true,
       });
-
+  
       if (response.status === 201) {
         toast.success("Brief created successfully!");
         setShowSuccess(true);
+        if (refreshDashboard) {
+          await refreshDashboard();
+        }
         setTimeout(() => {
           onClose();
           resetForm();
-        }, 1500);
+        }, 1500); 
       }
-    } catch (err) {
-      console.error("Error creating brief:", err);
-      const errorMessage = err.response?.data?.message || 
-        "Failed to create brief. Please try again later.";
-      setServerError(errorMessage);
-      toast.error(errorMessage);
+    } catch (error) {
+      console.error("Error submitting brief:", error);
+      setServerError(error.response?.data?.message || "Failed to create brief");
     } finally {
       setIsSubmitting(false);
     }
@@ -444,7 +541,7 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                   <div className="label-row-container__col">
                     <label className="form__label">Categories*</label>
                     <MultiSelectDropdown
-                      options={AVAILABLE_CATEGORIES}
+                      options={availableCategories.map(cat => cat.name)}
                       selected={formData.categories}
                       onChange={(selected) => handleChange("categories", selected)}
                       placeholder="Select categories..."
@@ -480,17 +577,11 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     <label htmlFor="platform" className="form__label">
                       Platform*
                     </label>
-                    <select
-                      value={formData.targetPlatform}
-                      onChange={(e) => handleChange("targetPlatform", e.target.value)}
-                      className={`form__input form__input--select ${errors.targetPlatform ? "input-error" : ""}`}
-                    >
-                      <option value="Instagram">Instagram</option>
-                      <option value="TikTok">TikTok</option>
-                      <option value="YouTube">YouTube</option>
-                      <option value="Twitter">Twitter</option>
-                      <option value="Facebook">Facebook</option>
-                    </select>
+                    <PlatformSelect
+                      selected={formData.targetPlatform}
+                      onChange={(selected) => handleChange("targetPlatform", selected)}
+                      error={errors.targetPlatform}
+                    />
                     {errors.targetPlatform && <span className="error-message">{errors.targetPlatform}</span>}
                   </div>
 
@@ -505,7 +596,8 @@ const CreateBriefModal = ({ isOpen, onClose }) => {
                     <button
                       onClick={nextPage}
                       type="button"
-                      disabled={!formData.categories || formData.categories.length === 0}
+                      disabled={!formData.categories || formData.categories.length === 0 || 
+                                !formData.targetPlatform || formData.targetPlatform.length === 0}
                       className="btn-cta btn-cta--medium"
                     >
                       Next

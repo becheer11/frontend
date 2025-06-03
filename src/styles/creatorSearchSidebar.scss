@@ -1,0 +1,232 @@
+// styles/creatorSearchSidebar.scss
+.creator-search-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  
+    &.open {
+      right: 0;
+    }
+  
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  
+      h3 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+  
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #666;
+      }
+    }
+  
+    .search-filters {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+  
+      .search-bar {
+        display: flex;
+        margin-bottom: 1rem;
+  
+        input {
+          flex: 1;
+          padding: 0.5rem;
+          border: 1px solid #ddd;
+          border-radius: 4px 0 0 4px;
+        }
+  
+        button {
+          padding: 0 1rem;
+          background: #1E90FF;
+          color: white;
+          border: none;
+          border-radius: 0 4px 4px 0;
+          cursor: pointer;
+        }
+      }
+  
+      .filter-section {
+        margin-bottom: 1rem;
+  
+        h4 {
+          margin-bottom: 0.5rem;
+          font-size: 0.9rem;
+          color: #555;
+        }
+  
+        .category-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+  
+          .tag {
+            padding: 0.3rem 0.6rem;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+  
+            &.active {
+              background: #1E90FF;
+              color: white;
+            }
+          }
+        }
+  
+        .score-range {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+  
+          input[type="range"] {
+            width: 100%;
+          }
+  
+          .score-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #555;
+          }
+        }
+      }
+  
+      .search-button {
+        width: 100%;
+        padding: 0.7rem;
+        background: #1E90FF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 1rem;
+  
+        &:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+      }
+    }
+  
+    .search-results {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+  
+      .loading, .no-results {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        color: #666;
+      }
+  
+      .creator-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+  
+        .creator-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+  
+          .creator-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+          }
+  
+          .creator-info {
+            flex: 1;
+  
+            h4 {
+              margin: 0;
+              font-size: 1rem;
+            }
+  
+            .creator-score {
+              display: flex;
+              align-items: center;
+              font-size: 0.9rem;
+              color: #555;
+  
+              .star-icon {
+                color: #FFD700;
+                margin-right: 0.3rem;
+                font-size: 0.8rem;
+              }
+            }
+          }
+        }
+  
+        .creator-bio {
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 0.5rem;
+        }
+  
+        .creator-categories {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+          margin-bottom: 0.5rem;
+  
+          .category-tag {
+            padding: 0.2rem 0.5rem;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #555;
+          }
+        }
+  
+        .creator-actions {
+          display: flex;
+          gap: 0.5rem;
+  
+          button {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+  
+            &.view-profile {
+              background: #f0f0f0;
+              color: #333;
+            }
+  
+            &.invite-collab {
+              background: #1E90FF;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+  }

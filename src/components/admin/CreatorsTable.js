@@ -116,7 +116,7 @@ const CreatorsTable = () => {
               <td>
                 {creator.audience?.instafollowers || 0}K (IG) / {creator.audience?.tiktokfollowers || 0}K (TT)
               </td>
-              <td>{creator.score || "N/A"}</td>
+              <td>{creator.score.totalScore || "N/A"}</td>
               <td>{new Date(creator.createdAt).toLocaleDateString()}</td>
               <td className="actions-cell">
                 <button 
